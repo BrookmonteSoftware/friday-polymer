@@ -150,7 +150,7 @@ function initializeDailyCalendar()
         },
         select : function(startDate, endDate, allDay, jsEvent, view)
         {
-            //showEventInputDialog(startDate, endDate, allDay);
+            showEventInputDialog(startDate, endDate, allDay);
         },
         eventRender : function(event, element, view)
         {
@@ -275,4 +275,9 @@ function initializeDailyCalendar()
 
     //$("#homeDailyCalendar .fc-today").removeClass("ui-state-highlight");
 
+}
+
+function showEventInputDialog(startDate, endDate, allDay)
+{
+    document.querySelector("friday-event-dialog").showEventDialog(startDate, endDate, allDay);
 }

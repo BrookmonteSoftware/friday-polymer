@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beansProjectDescription>
+	<version>1</version>
+	<pluginVersion><![CDATA[3.7.2.201511260958-RELEASE]]></pluginVersion>
+	<configSuffixes>
+		<configSuffix><![CDATA[xml]]></configSuffix>
+	</configSuffixes>
+	<enableImports><![CDATA[false]]></enableImports>
+	<configs>
+		<config>java:com.brookmonte.friday.FridayPolymer.manager.admin.AdministrationManager</config>
+		<config>java:com.brookmonte.friday.FridayPolymer.manager.amazon.AmazonServiceManager</config>
+		<config>java:com.brookmonte.friday.FridayPolymer.dao.calendar.CalendarDao</config>
+		<config>java:com.brookmonte.friday.FridayPolymer.manager.calendar.CalendarManager</config>
+		<config>java:com.brookmonte.friday.FridayPolymer.dao.contacts.ContactsDao</config>
+		<config>java:com.brookmonte.friday.FridayPolymer.manager.contacts.ContactsManager</config>
+		<config>java:com.brookmonte.friday.FridayPolymer.manager.proxy.CORSFilter</config>
+		<config>java:com.brookmonte.friday.FridayPolymer.domain.admin.FridayAuthenticationProvider</config>
+		<config>java:com.brookmonte.friday.FridayPolymer.domain.fridayUtils.FridayUtilities</config>
+		<config>java:com.brookmonte.friday.FridayPolymer.dao.location.LocationDao</config>
+		<config>java:com.brookmonte.friday.FridayPolymer.manager.location.LocationManager</config>
+		<config>java:com.brookmonte.friday.FridayPolymer.manager.newsfeeds.NewsFeedManager</config>
+		<config>java:com.brookmonte.friday.FridayPolymer.manager.properties.PropertiesManager</config>
+		<config>java:com.brookmonte.friday.FridayPolymer.manager.proxy.ProxyManager</config>
+		<config>java:com.brookmonte.friday.FridayPolymer.ServletCustomizer</config>
+		<config>java:com.brookmonte.friday.FridayPolymer.dao.task.TaskDao</config>
+		<config>java:com.brookmonte.friday.FridayPolymer.manager.tasks.TaskManager</config>
+		<config>java:com.brookmonte.friday.FridayPolymer.manager.traffic.TrafficManager</config>
+		<config>java:com.brookmonte.friday.FridayPolymer.dao.admin.UserDao</config>
+		<config>java:com.brookmonte.friday.FridayPolymer.manager.weather.WeatherManager</config>
+		<config>java:com.brookmonte.friday.FridayPolymer.WebSecurityConfig</config>
+	</configs>
+	<autoconfigs>
+		<config>java:com.brookmonte.friday.FridayPolymer.FridayPolymerApplication</config>
+	</autoconfigs>
+	<configSets>
+	</configSets>
+</beansProjectDescription>
