@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2010 The myBatis Team Licensed under the Apache License, Version 
+	2.0 (the "License"); you may not use this file except in compliance with 
+	the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 
+	Unless required by applicable law or agreed to in writing, software distributed 
+	under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES 
+	OR CONDITIONS OF ANY KIND, either express or implied. See the License for 
+	the specific language governing permissions and limitations under the License. -->
+
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+    
+<mapper namespace="com.brookmonte.friday.dao.task.TaskDao">
+
+<!-- TASK
+    private String taskId;
+    private String userId;
+    private String parentTaskId;
+    private String description;
+    private String notes;
+    private String taskInstanceDescription;
+-->
+
+<!-- TASK INSTANCE    
+    private String taskInstanceId;
+    private String taskId;
+    private String parentTaskInstanceId;
+    private String userId;
+    private DateTime dueDate;
+    private boolean isComplete;
+    private String description;
+    private String notes;
+ -->
+ 
+	<resultMap id="taskResultMap" type="FridayTask">
+		<result property="taskId" column="TASK_ID" />
+		<result property="userId" column="USER_ID" />
+		<result property="parentTaskId" column="PARENT_TASK_ID" />
+		<result property="description" column="DESCRIPTION" />
+		<result property="notes" column="NOTES" />
+		<result property="taskInstanceDescription" column="TASK_INSTANCE_DESCRIPTION" />
+	    <collection property="subtasks" javaType="ArrayList" column="TASK_ID" ofType="FridayTask" select="selectSubtasksForTask"/>
+	</resultMap>
+
+	<resultMap id="taskInstanceResultMap" type="FridayTaskInstance">
+		<result property="taskInstanceId" column="TASK_INSTANCE_ID" />
+		<result property="taskId" column="TASK_ID" />
+		<result property="parentTaskInstanceId" column="PARENT_TASK_INSTANCE_ID" />
+		<result property="userId" column="USER_ID" />
+		<result property="dueDate" column="DUE_DATE" />
+		<result property="isComplete" column="IS_COMPLETE" />
+		<result property="description" column="DESCRIPTION" />
+		<result property="notes" column="NOTES" />
+		<result property="instanceCount" column="INSTANCE_COUNT" />
+	    <collection property="subtaskInstances" javaType="ArrayList" column="TASK_INSTANCE_ID" ofType="FridayTaskInstance" select="selectSubtaskInstancesForTaskInstance"/>
+	</resultMap>
+
+	<!--  TASKS -->
+	<select id="getUserTasksByUserId" parameterType="java.lang.String" resultMap="taskResultMap">
+		select
+			t.TASK_ID						AS TASK_ID,
+			t.USER_ID						AS USER_ID,
+			t.PARENT_TASK_ID				AS PARENT_TASK_ID,
+			t.DESCRIPTION					AS DESCRIPTION,
+			t.NOTES							AS NOTES,
+			t.TASK_INSTANCE_DESCRIPTION		AS TASK_INSTANCE_DESCRIPTION
+		from friday.FRIDAY_TASK t
+		where t.USER_ID = #{userId}
+		and t.PARENT_TASK_ID is null		
+   </select>
+   
+	<select id="selectSubtasksForTask" parameterType="java.lang.String" resultMap="taskResultMap">
+		select
+			t.TASK_ID						AS TASK_ID,
+			t.USER_ID						AS USER_ID,
+			t.PARENT_TASK_ID				AS PARENT_TASK_ID,
+			t.DESCRIPTION					AS DESCRIPTION,
+			t.NOTES							AS NOTES,
+			t.TASK_INSTANCE_DESCRIPTION		AS TASK_INSTANCE_DESCRIPTION
+		from friday.FRIDAY_TASK t
+		where t.PARENT_TASK_ID = #{taskId}
+		and t.PARENT_TASK_ID is not null		
+   </select>   
+
+   <select id="getUserTaskByTaskId" parameterType="java.lang.String" resultMap="taskResultMap">
+   		select
+			t.TASK_ID						AS TASK_ID,
+			t.USER_ID						AS USER_ID,
+			t.PARENT_TASK_ID				AS PARENT_TASK_ID,
+			t.DESCRIPTION					AS DESCRIPTION,
+			t.NOTES							AS NOTES,
+			t.TASK_INSTANCE_DESCRIPTION		AS TASK_INSTANCE_DESCRIPTION
+		from friday.FRIDAY_TASK t
+		where t.TASK_ID = #{taskId}   
+   </select>
+
+   <insert id="insertTask">
+		INSERT INTO friday.FRIDAY_TASK
+			(TASK_ID,
+			USER_ID,
+			<if test="parentTaskId != null and parentTaskId != '' ">
+        	PARENT_TASK_ID,
+    		</if>			
+			DESCRIPTION,
+			NOTES,
+			TASK_INSTANCE_DESCRIPTION)
+			VALUES
+			(
+			#{taskId},
+			#{userId},			
+			<if test="parentTaskId != null and parentTaskId != '' ">
+        	#{parentTaskId},
+    		</if>
+			#{description},
+			#{notes},
+			#{taskInstanceDescription})
+   </insert>
+
+   <update id="updateTask">
+		UPDATE friday.FRIDAY_TASK
+		SET
+		DESCRIPTION = #{description},
+		NOTES = #{notes},
+		TASK_INSTANCE_DESCRIPTION = #{taskInstanceDescription}
+		WHERE TASK_ID = #{taskId}
+   </update>		
+	
+   <delete id="deleteTask">
+       DELETE FROM friday.FRIDAY_TASK
+       WHERE TASK_ID = #{taskId}  
+   </delete>
+   
+   <delete id="deleteSubtasksForTask">
+       DELETE FROM friday.FRIDAY_TASK
+       WHERE PARENT_TASK_ID = #{taskId}
+   </delete> 
+
+	<!-- TASK INSTANCES -->   
+   <select id="getUserTaskInstancesByUserId" parameterType="java.lang.String" resultMap="taskInstanceResultMap">
+		select
+		    t.TASK_INSTANCE_ID				AS TASK_INSTANCE_ID,
+			t.TASK_ID						AS TASK_ID,
+			t.USER_ID						AS USER_ID,
+			t.PARENT_TASK_INSTANCE_ID		AS PARENT_TASK_INSTANCE_ID,
+			t.DESCRIPTION					AS DESCRIPTION,
+			t.NOTES							AS NOTES,
+			t.IS_COMPLETE					AS IS_COMPLETE,
+			t.DUE_DATE						AS DUE_DATE,
+			(select count(*) from friday.FRIDAY_TASK_INSTANCE fti where fti.TASK_ID = t.TASK_ID)
+											AS INSTANCE_COUNT
+		from friday.FRIDAY_TASK_INSTANCE t
+		where t.USER_ID = #{userId}
+		and t.PARENT_TASK_INSTANCE_ID is null
+		order by t.DUE_DATE asc		
+   </select>
+   
+   <select id="getUserTaskInstanceByTaskInstanceId" parameterType="java.lang.String" resultMap="taskInstanceResultMap">
+   		select
+		    t.TASK_INSTANCE_ID				AS TASK_INSTANCE_ID,
+			t.TASK_ID						AS TASK_ID,
+			t.USER_ID						AS USER_ID,
+			t.PARENT_TASK_INSTANCE_ID		AS PARENT_TASK_INSTANCE_ID,
+			t.DESCRIPTION					AS DESCRIPTION,
+			t.NOTES							AS NOTES,
+			t.IS_COMPLETE					AS IS_COMPLETE,
+			t.DUE_DATE						AS DUE_DATE,
+			(select count(*) from friday.FRIDAY_TASK_INSTANCE fti where fti.TASK_ID = t.TASK_ID)
+											AS INSTANCE_COUNT			
+		from friday.FRIDAY_TASK_INSTANCE t
+		where t.TASK_INSTANCE_ID = #{taskInstanceId}   
+   </select>   
+   
+	<select id="selectSubtaskInstancesForTaskInstance" parameterType="java.lang.String" resultMap="taskInstanceResultMap">
+		select
+		    t.TASK_INSTANCE_ID				AS TASK_INSTANCE_ID,
+			t.TASK_ID						AS TASK_ID,
+			t.USER_ID						AS USER_ID,
+			t.PARENT_TASK_INSTANCE_ID		AS PARENT_TASK_INSTANCE_ID,
+			t.DESCRIPTION					AS DESCRIPTION,
+			t.NOTES							AS NOTES,
+			t.IS_COMPLETE					AS IS_COMPLETE,
+			t.DUE_DATE						AS DUE_DATE,
+			(select count(*) from friday.FRIDAY_TASK_INSTANCE fti where fti.TASK_ID = t.TASK_ID)
+											AS INSTANCE_COUNT			
+		from friday.FRIDAY_TASK_INSTANCE t
+		where t.PARENT_TASK_INSTANCE_ID = #{taskInstanceId}
+		and t.PARENT_TASK_INSTANCE_ID is not null		
+   </select>
+   
+   	<select id="selectTaskInstancesForTask" parameterType="java.lang.String" resultMap="taskInstanceResultMap">
+		select
+		    t.TASK_INSTANCE_ID				AS TASK_INSTANCE_ID,
+			t.TASK_ID						AS TASK_ID,
+			t.USER_ID						AS USER_ID,
+			t.PARENT_TASK_INSTANCE_ID		AS PARENT_TASK_INSTANCE_ID,
+			t.DESCRIPTION					AS DESCRIPTION,
+			t.NOTES							AS NOTES,
+			t.IS_COMPLETE					AS IS_COMPLETE,
+			t.DUE_DATE						AS DUE_DATE,
+			(select count(*) from friday.FRIDAY_TASK_INSTANCE fti where fti.TASK_ID = t.TASK_ID)
+											AS INSTANCE_COUNT			
+		from friday.FRIDAY_TASK_INSTANCE t
+		where t.TASK_ID = #{taskId}
+   </select>
+   
+   <insert id="insertTaskInstance">
+		INSERT INTO friday.FRIDAY_TASK_INSTANCE
+			(TASK_INSTANCE_ID,
+			TASK_ID,
+			USER_ID,
+			<if test="parentTaskInstanceId != null and parentTaskInstanceId != '' ">
+        	PARENT_TASK_INSTANCE_ID,
+    		</if>
+    		DUE_DATE,
+			DESCRIPTION,
+			NOTES,
+			IS_COMPLETE)
+			VALUES
+			(
+			#{taskInstanceId},
+			#{taskId},
+			#{userId},			
+			<if test="parentTaskInstanceId != null and parentTaskInstanceId != '' ">
+        	#{parentTaskInstanceId},
+    		</if>
+    		#{dueDate, javaType=org.joda.time.DateTime, jdbcType=NUMERIC},
+			#{description},
+			#{notes},
+			#{isComplete})
+   </insert>   
+   
+    <update id="updateTaskInstance">
+		UPDATE friday.FRIDAY_TASK_INSTANCE
+		SET
+		DESCRIPTION = #{description},
+		NOTES = #{notes},
+		IS_COMPLETE = #{isComplete},
+		DUE_DATE = #{dueDate, javaType=org.joda.time.DateTime, jdbcType=TIMESTAMP}
+		WHERE TASK_INSTANCE_ID = #{taskInstanceId}
+   </update>
+   
+   <delete id="deleteTaskInstance">
+       DELETE FROM friday.FRIDAY_TASK_INSTANCE
+       WHERE TASK_INSTANCE_ID = #{taskInstanceId}  
+   </delete>
+   
+   <delete id="deleteSubtaskInstancesForTaskInstance">
+       DELETE FROM friday.FRIDAY_TASK_INSTANCE
+       WHERE PARENT_TASK_INSTANCE_ID = #{taskInstanceId}
+   </delete>
+   
+   <update id="markTaskInstance">
+		UPDATE friday.FRIDAY_TASK_INSTANCE
+		SET
+		IS_COMPLETE = #{isComplete}
+		WHERE TASK_INSTANCE_ID = #{taskInstanceId}
+   </update>   
+	
+</mapper>    

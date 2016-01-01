@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2010 The myBatis Team Licensed under the Apache License, Version 
+	2.0 (the "License"); you may not use this file except in compliance with 
+	the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 
+	Unless required by applicable law or agreed to in writing, software distributed 
+	under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES 
+	OR CONDITIONS OF ANY KIND, either express or implied. See the License for 
+	the specific language governing permissions and limitations under the License. -->
+
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+    
+<mapper namespace="com.brookmonte.friday.dao.calendar.CalendarDao">
+
+	<resultMap id="holidayResultMap" type="FridayHoliday">
+		<result property="holidayId" column="HOLIDAY_ID" />
+		<result property="holidayName" column="HOLIDAY_NAME" />
+		<result property="holidayDateDescription" column="HOLIDAY_DATE_DESCRIPTION" />
+		<result property="legalHoliday" column="LEGAL_HOLIDAY" />
+	</resultMap>
+	
+	<resultMap id="eventDescriptionResultMap" type="FridayEventDescription">
+	    <result property="userEventId" column="USER_EVENT_ID" />
+	    <result property="userId" column="USER_ID" />
+	    <result property="eventType" column="EVENT_TYPE" />
+	    <result property="eventTitle" column="EVENT_TITLE" />
+	    <result property="eventDescription" column="EVENT_DESCRIPTION" />
+	    <result property="eventInstanceDescription" column="EVENT_INSTANCE_DESCRIPTION" />
+	    <result property="eventLocation" column="EVENT_LOCATION" />
+	    <result property="eventLocationId" column="EVENT_LOCATION_ID" />
+	</resultMap>  
+	
+	<resultMap id="eventInstanceResultMap" type="FridayEventInstance">
+	    <result property="eventInstanceId" column="EVENT_INSTANCE_ID" />	
+	    <result property="userEventId" column="USER_EVENT_ID" />
+	    <result property="userId" column="USER_ID" />
+	    <result property="eventType" column="EVENT_TYPE" />	    
+	    <result property="eventTitle" column="EVENT_TITLE" />
+	    <result property="eventDescription" column="EVENT_DESCRIPTION" />
+	    <result property="eventLocation" column="EVENT_LOCATION" />
+	    <result property="eventLocationId" column="EVENT_LOCATION_ID" />
+		<result property="eventStartTime" column="EVENT_START_TIME" />
+		<result property="eventEndTime" column="EVENT_END_TIME" />
+		<result property="descriptionStartTime" column="DESCRIPTION_START_TIME" />
+		<result property="deleted" column="IS_DELETED" />	    
+	</resultMap>	
+	
+	<resultMap id="eventTypeResultMap" type="FridayEventTypeEntry">
+		<result property="eventTypeName" column="EVENT_TYPE_NAME" />
+		<result property="eventTypeId" column="EVENT_TYPE_ID" />
+	</resultMap>
+	
+	<select id="getHolidaysForCountry" parameterType="java.lang.String" resultMap="holidayResultMap">
+	    SELECT
+		    FRIDAY_HOLIDAY.HOLIDAY_ID				AS HOLIDAY_ID,
+		    FRIDAY_HOLIDAY.HOLIDAY_NAME				AS HOLIDAY_NAME,
+		    FRIDAY_HOLIDAY.HOLIDAY_DATE_DESCRIPTION AS HOLIDAY_DATE_DESCRIPTION,
+		    FRIDAY_HOLIDAY.LEGAL_HOLIDAY			AS LEGAL_HOLIDAY
+	    FROM friday.FRIDAY_HOLIDAY, friday.FRIDAY_HOLIDAY_COUNTRY_MAP, friday.FRIDAY_COUNTRY
+	    WHERE FRIDAY_COUNTRY.COUNTRY_CODE3 = #{countryCode3}
+	    AND FRIDAY_COUNTRY.COUNTRY_ID = FRIDAY_HOLIDAY_COUNTRY_MAP.COUNTRY_ID
+	    AND FRIDAY_HOLIDAY_COUNTRY_MAP.HOLIDAY_ID = FRIDAY_HOLIDAY.HOLIDAY_ID	
+	</select>
+
+	<select id="getHolidaysForReligion" parameterType="java.lang.String" resultMap="holidayResultMap">
+	    SELECT
+		    FRIDAY_HOLIDAY.HOLIDAY_ID				AS HOLIDAY_ID,
+		    FRIDAY_HOLIDAY.HOLIDAY_NAME				AS HOLIDAY_NAME,
+		    FRIDAY_HOLIDAY.HOLIDAY_DATE_DESCRIPTION AS HOLIDAY_DATE_DESCRIPTION,
+		    FRIDAY_HOLIDAY.LEGAL_HOLIDAY			AS LEGAL_HOLIDAY
+	    FROM friday.FRIDAY_HOLIDAY, friday.FRIDAY_RELIGION_HOLIDAY_MAP, friday.FRIDAY_RELIGION_DESCRIPTION
+	    WHERE FRIDAY_RELIGION_DESCRIPTION.RELIGION_NAME = #{religion_name}
+	    AND FRIDAY_RELIGION_DESCRIPTION.RELIGION_ID = FRIDAY_RELIGION_HOLIDAY_MAP.RELIGION_ID
+	    AND FRIDAY_RELIGION_HOLIDAY_MAP.HOLIDAY_ID = FRIDAY_HOLIDAY.HOLIDAY_ID	
+	</select>
+	
+	<select id="getEventDescriptionsForUser" parameterType="java.lang.String" resultMap="eventDescriptionResultMap">
+		SELECT
+			FRIDAY_USER_EVENT.USER_EVENT_ID					AS USER_EVENT_ID,
+			FRIDAY_USER_EVENT.USER_ID						AS USER_ID,
+			(select fet.EVENT_TYPE_NAME
+				from friday.FRIDAY_EVENT_TYPE fet
+				where fet.EVENT_TYPE_ID
+				= FRIDAY_USER_EVENT.EVENT_TYPE_ID)			AS EVENT_TYPE,
+			FRIDAY_USER_EVENT.EVENT_TITLE					AS EVENT_TITLE,
+			FRIDAY_USER_EVENT.EVENT_DESCRIPTION				AS EVENT_DESCRIPTION,
+			FRIDAY_USER_EVENT.EVENT_INSTANCE_DESCRIPTION	AS EVENT_INSTANCE_DESCRIPTION,
+			FRIDAY_USER_EVENT.EVENT_LOCATION				AS EVENT_LOCATION,
+			FRIDAY_USER_EVENT.EVENT_LOCATION_ID				AS EVENT_LOCATION_ID
+		FROM friday.FRIDAY_USER_EVENT
+		WHERE FRIDAY_USER_EVENT.USER_ID = (select USER_ID from friday.FRIDAY_USER where USER_NAME = #{userId})	
+	</select>
+	
+	<insert id="insertEventDescription">
+		INSERT INTO friday.FRIDAY_USER_EVENT
+		(
+			FRIDAY_USER_EVENT.USER_EVENT_ID,
+			FRIDAY_USER_EVENT.USER_ID,
+			FRIDAY_USER_EVENT.EVENT_TYPE_ID,
+			FRIDAY_USER_EVENT.EVENT_LOCATION_ID,
+			FRIDAY_USER_EVENT.EVENT_TITLE,
+			FRIDAY_USER_EVENT.EVENT_DESCRIPTION,
+			FRIDAY_USER_EVENT.EVENT_INSTANCE_DESCRIPTION,
+			FRIDAY_USER_EVENT.EVENT_LOCATION
+		)
+		VALUES
+		(
+			#{userEventId},
+			#{userId},
+			(SELECT EVENT_TYPE_ID FROM friday.FRIDAY_EVENT_TYPE WHERE EVENT_TYPE_NAME=#{eventType}),
+			#{eventLocationId},
+			#{eventTitle},
+			#{eventDescription},
+			#{eventInstanceDescription},
+			#{eventLocation}
+		);
+	</insert>
+	
+	<delete id="deleteEventByUserIdEventId">
+		DELETE FROM friday.FRIDAY_USER_EVENT
+		WHERE FRIDAY_USER_EVENT.USER_EVENT_ID = #{userEventId}
+		AND FRIDAY_USER_EVENT.USER_ID = #{userId}	
+	</delete>	
+
+	<select id="getEventForEventInstance" parameterType="java.util.HashMap" resultMap="eventDescriptionResultMap">
+		SELECT
+			FRIDAY_USER_EVENT.USER_EVENT_ID					AS USER_EVENT_ID,
+			FRIDAY_USER_EVENT.USER_ID						AS USER_ID,
+			(select fet.EVENT_TYPE_NAME
+				from friday.FRIDAY_EVENT_TYPE fet
+				where fet.EVENT_TYPE_ID
+				= FRIDAY_USER_EVENT.EVENT_TYPE_ID)			AS EVENT_TYPE,
+			FRIDAY_USER_EVENT.EVENT_TITLE					AS EVENT_TITLE,
+			FRIDAY_USER_EVENT.EVENT_DESCRIPTION				AS EVENT_DESCRIPTION,
+			FRIDAY_USER_EVENT.EVENT_INSTANCE_DESCRIPTION	AS EVENT_INSTANCE_DESCRIPTION,
+			FRIDAY_USER_EVENT.EVENT_LOCATION				AS EVENT_LOCATION,
+			FRIDAY_USER_EVENT.EVENT_LOCATION_ID				AS EVENT_LOCATION_ID
+		FROM friday.FRIDAY_USER_EVENT
+		WHERE FRIDAY_USER_EVENT.USER_ID = #{userId}
+		AND FRIDAY_USER_EVENT.USER_EVENT_ID = #{userEventId}
+	</select>
+	
+	<select id="getEventInstanceForEvent" parameterType="java.util.HashMap" resultMap="eventInstanceResultMap">
+		SELECT
+			FRIDAY_EVENT_INSTANCE.EVENT_INSTANCE_ID				AS EVENT_INSTANCE_ID,
+			FRIDAY_EVENT_INSTANCE.USER_EVENT_ID					AS USER_EVENT_ID,
+			FRIDAY_EVENT_INSTANCE.USER_ID						AS USER_ID,
+			FRIDAY_EVENT_INSTANCE.EVENT_LOCATION_ID				AS EVENT_LOCATION_ID,
+			(select fet.EVENT_TYPE_ID
+				from friday.FRIDAY_EVENT_TYPE fet
+				where fet.EVENT_TYPE_ID
+				= FRIDAY_EVENT_INSTANCE.EVENT_TYPE_ID)			AS EVENT_TYPE,			
+			FRIDAY_EVENT_INSTANCE.EVENT_TITLE					AS EVENT_TITLE,
+			FRIDAY_EVENT_INSTANCE.EVENT_DESCRIPTION				AS EVENT_DESCRIPTION,
+			FRIDAY_EVENT_INSTANCE.EVENT_LOCATION				AS EVENT_LOCATION,
+			FRIDAY_EVENT_INSTANCE.EVENT_START_TIME				AS EVENT_START_TIME,
+			FRIDAY_EVENT_INSTANCE.EVENT_END_TIME				AS EVENT_END_TIME,
+			FRIDAY_EVENT_INSTANCE.DESCRIPTION_START_TIME		AS DESCRIPTION_START_TIME,
+			FRIDAY_EVENT_INSTANCE.IS_DELETED					AS IS_DELETED
+		FROM friday.FRIDAY_EVENT_INSTANCE
+		WHERE FRIDAY_EVENT_INSTANCE.USER_ID = #{userId}
+		AND FRIDAY_EVENT_INSTANCE.USER_EVENT_ID = #{userEventId}
+		AND FRIDAY_EVENT_INSTANCE.DESCRIPTION_START_TIME = #{descriptionStartTime}
+	</select>
+	
+	<select id="getEventInstanceByInstanceId" parameterType="java.util.HashMap" resultMap="eventInstanceResultMap">
+		SELECT
+			FRIDAY_EVENT_INSTANCE.EVENT_INSTANCE_ID				AS EVENT_INSTANCE_ID,
+			FRIDAY_EVENT_INSTANCE.USER_EVENT_ID					AS USER_EVENT_ID,
+			FRIDAY_EVENT_INSTANCE.USER_ID						AS USER_ID,
+			FRIDAY_EVENT_INSTANCE.EVENT_LOCATION_ID				AS EVENT_LOCATION_ID,
+			(select fet.EVENT_TYPE_NAME
+				from friday.FRIDAY_EVENT_TYPE fet
+				where fet.EVENT_TYPE_ID
+				= FRIDAY_EVENT_INSTANCE.EVENT_TYPE_ID)			AS EVENT_TYPE,			
+			FRIDAY_EVENT_INSTANCE.EVENT_TITLE					AS EVENT_TITLE,
+			FRIDAY_EVENT_INSTANCE.EVENT_DESCRIPTION				AS EVENT_DESCRIPTION,
+			FRIDAY_EVENT_INSTANCE.EVENT_LOCATION				AS EVENT_LOCATION,
+			FRIDAY_EVENT_INSTANCE.EVENT_START_TIME				AS EVENT_START_TIME,
+			FRIDAY_EVENT_INSTANCE.EVENT_END_TIME				AS EVENT_END_TIME,
+			FRIDAY_EVENT_INSTANCE.DESCRIPTION_START_TIME		AS DESCRIPTION_START_TIME,
+			FRIDAY_EVENT_INSTANCE.IS_DELETED					AS IS_DELETED
+		FROM friday.FRIDAY_EVENT_INSTANCE
+		WHERE FRIDAY_EVENT_INSTANCE.USER_ID = #{userId}
+		AND FRIDAY_EVENT_INSTANCE.EVENT_INSTANCE_ID = #{eventInstanceId}
+	</select>
+
+	<select id="getEventInstancesForUserBetweenDates" parameterType="java.util.HashMap" resultMap="eventInstanceResultMap">
+		<![CDATA[
+		SELECT
+			FRIDAY_EVENT_INSTANCE.EVENT_INSTANCE_ID				AS EVENT_INSTANCE_ID,
+			FRIDAY_EVENT_INSTANCE.USER_EVENT_ID					AS USER_EVENT_ID,
+			FRIDAY_EVENT_INSTANCE.USER_ID						AS USER_ID,
+			(select fet.EVENT_TYPE_NAME
+				from friday.FRIDAY_EVENT_TYPE fet
+				where fet.EVENT_TYPE_ID
+				= FRIDAY_EVENT_INSTANCE.EVENT_TYPE_ID)			AS EVENT_TYPE,			
+			FRIDAY_EVENT_INSTANCE.EVENT_LOCATION_ID				AS EVENT_LOCATION_ID,
+			FRIDAY_EVENT_INSTANCE.EVENT_TITLE					AS EVENT_TITLE,
+			FRIDAY_EVENT_INSTANCE.EVENT_DESCRIPTION				AS EVENT_DESCRIPTION,
+			FRIDAY_EVENT_INSTANCE.EVENT_LOCATION				AS EVENT_LOCATION,
+			FRIDAY_EVENT_INSTANCE.EVENT_START_TIME				AS EVENT_START_TIME,
+			FRIDAY_EVENT_INSTANCE.EVENT_END_TIME				AS EVENT_END_TIME,
+			FRIDAY_EVENT_INSTANCE.DESCRIPTION_START_TIME		AS DESCRIPTION_START_TIME,
+			FRIDAY_EVENT_INSTANCE.IS_DELETED					AS IS_DELETED
+		FROM friday.FRIDAY_EVENT_INSTANCE
+		WHERE FRIDAY_EVENT_INSTANCE.USER_ID = #{userId}
+		AND FRIDAY_EVENT_INSTANCE.EVENT_START_TIME >= #{instanceStartTime}
+		AND FRIDAY_EVENT_INSTANCE.EVENT_END_TIME <= #{instanceEndTime}
+		AND FRIDAY_EVENT_INSTANCE.IS_DELETED != 1
+		]]>
+	</select>
+		
+	<insert id="insertEventInstance">
+		INSERT INTO friday.FRIDAY_EVENT_INSTANCE
+		(
+			FRIDAY_EVENT_INSTANCE.EVENT_INSTANCE_ID,
+			FRIDAY_EVENT_INSTANCE.USER_EVENT_ID,
+			FRIDAY_EVENT_INSTANCE.USER_ID,
+			FRIDAY_EVENT_INSTANCE.EVENT_LOCATION_ID,
+			FRIDAY_EVENT_INSTANCE.EVENT_TYPE_ID,
+			FRIDAY_EVENT_INSTANCE.EVENT_TITLE,
+			FRIDAY_EVENT_INSTANCE.EVENT_DESCRIPTION,
+			FRIDAY_EVENT_INSTANCE.EVENT_LOCATION,
+			FRIDAY_EVENT_INSTANCE.EVENT_START_TIME,
+			FRIDAY_EVENT_INSTANCE.EVENT_END_TIME,
+			FRIDAY_EVENT_INSTANCE.DESCRIPTION_START_TIME,
+			FRIDAY_EVENT_INSTANCE.IS_DELETED
+		)
+		VALUES
+		(
+			#{eventInstanceId},
+			#{userEventId},
+			#{userId},
+			#{eventLocationId},
+			(SELECT EVENT_TYPE_ID FROM friday.FRIDAY_EVENT_TYPE WHERE EVENT_TYPE_NAME=#{eventType}),
+			#{eventTitle},
+			#{eventDescription},
+			#{eventLocation},
+			#{eventStartTime, javaType=org.joda.time.DateTime, jdbcType=TIMESTAMP},
+			#{eventEndTime, javaType=org.joda.time.DateTime, jdbcType=TIMESTAMP},
+			#{descriptionStartTime},
+			#{deleted}
+		);
+	</insert>	
+	
+	<update id="updateEventInstance">
+		UPDATE friday.FRIDAY_EVENT_INSTANCE
+		SET	FRIDAY_EVENT_INSTANCE.EVENT_LOCATION_ID = #{eventLocationId},
+			FRIDAY_EVENT_INSTANCE.EVENT_TITLE = #{eventTitle},
+			FRIDAY_EVENT_INSTANCE.EVENT_DESCRIPTION = #{eventDescription},
+			FRIDAY_EVENT_INSTANCE.EVENT_LOCATION = #{eventLocation},
+			FRIDAY_EVENT_INSTANCE.EVENT_TYPE_ID = (SELECT EVENT_TYPE_ID FROM friday.FRIDAY_EVENT_TYPE WHERE EVENT_TYPE_NAME=#{eventType}),
+			FRIDAY_EVENT_INSTANCE.EVENT_START_TIME = #{eventStartTime},
+			FRIDAY_EVENT_INSTANCE.EVENT_END_TIME = #{eventEndTime},
+			FRIDAY_EVENT_INSTANCE.IS_DELETED = #{deleted}
+		WHERE FRIDAY_EVENT_INSTANCE.EVENT_INSTANCE_ID = #{eventInstanceId}
+	</update>
+	
+	<delete id="deleteEventInstanceByUserIdEventId">
+		DELETE FROM friday.FRIDAY_EVENT_INSTANCE
+		WHERE FRIDAY_EVENT_INSTANCE.USER_EVENT_ID = #{userEventId}
+		AND FRIDAY_EVENT_INSTANCE.USER_ID = #{userId}
+	</delete>
+	
+	<select id="getEventInstanceTypes" resultMap="eventTypeResultMap">
+		SELECT
+			FRIDAY_EVENT_TYPE.EVENT_TYPE_NAME,
+			FRIDAY_EVENT_TYPE.EVENT_TYPE_ID
+		FROM friday.FRIDAY_EVENT_TYPE
+	</select>
+		
+</mapper>

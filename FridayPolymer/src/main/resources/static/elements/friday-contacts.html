@@ -1,0 +1,1631 @@
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="../fonts/font-awesome/css/font-awesome.min.css">
+  <link  rel="stylesheet" href="../js/bower_components/x-editable/dist/jqueryui-editable/css/jqueryui-editable.css">
+  
+  <!-- Non-Polymer JS libraries -->  
+  <script src="../js/bower_components/moment/moment.js" th:src="@{../js/bower_components/moment/moment.js}"></script>
+  <script src="../js/bower_components/x-editable/dist/jqueryui-editable/js/jqueryui-editable.min.js" th:src="@{../js/bower_components/x-editable/dist/jqueryui-editable/js/jqueryui-editable.min.js}"></script>
+  <script src="../js/dropzone/dropzone.js" th:src="@{../js/dropzone/dropzone.js}"></script>
+
+  <!-- Friday application JS libraries -->
+  <script src="../js/friday/friday_utils.js" th:src="@{../js/friday/friday_utils.js}"></script>
+  
+  <!-- POLYMER ELEMENTS -->
+  <link rel="import" href="../js/bower_components/polymer/polymer.html">
+  
+  <!-- IRON -->
+  <link rel="import" href="../js/bower_components/iron-resizable-behavior/iron-resizable-behavior.html" th:href="@{../js/bower_components/iron-resizable-behavior/iron-resizable-behavior.html}">
+  
+  <!-- PAPER -->
+  
+  <!-- GOOGLE -->
+
+  <!-- FRIDAY ELEMENTS -->
+
+
+
+
+<dom-module id="friday-contacts">
+
+<template>
+<style>
+#contactCard
+{
+  position: relative;
+  height: 100%;
+  width: 100%;
+  background-color: #FFEFBB;
+  border: 1px solid #1C68AC;
+  background-image: url(/images/white-paperboard.png);
+}
+
+#contactAccordionContainer
+{
+  position: absolute;
+  top: 120px;
+}
+
+#contactCardPic
+{
+  height: 80px;
+  width: 80px;
+  margin-top: 4px;
+  margin-left: 4px;
+  border: 1px solid #1C68AC;
+}
+
+#fullName
+{
+  position: relative;
+  left: 100px;
+  top: -75px;
+  font: bold normal 20px Calibri, sans-serif;
+  color: #ED7D31;
+}
+
+#NICKNAME
+{
+  position: relative;
+  left: 100px;
+  top: -75px;
+  font: bold normal 14px Calibri, sans-serif;
+  color: #ED7D31;
+}
+
+#editButton
+{
+  cursor: pointer;
+  color: #ED7D31;
+  background-color: #FFFFFF;
+  position: absolute;
+  top: 10px;
+  right: 5px;
+}
+
+.contactElement
+{
+  font: bold normal 14px Calibri, sans-serif;
+  color: #1C68AC;
+}
+
+.contactAccordionTab
+{
+  font: bold normal 16px Calibri, sans-serif !important;
+  margin: 3px;
+  color: #ED7D31;
+}
+
+#editContactCardPic
+{
+  height: 80px;
+  width: 80px;
+  margin-top: 4px;
+  margin-left: 4px;
+  border: 1px solid #1C68AC;
+}
+
+#editNameBlock
+{
+  position: relative;
+  left: 100px;
+  top: -85px;
+  width: 200px;
+  font: bold normal 20px Calibri, sans-serif;
+  color: #ED7D31;
+}
+
+.contactSection
+{
+  font: bold normal 20px Calibri, sans-serif !important;
+  margin: 3px;
+  color: #1C68AC;
+}
+
+</style>
+
+<div id="contactsContainer" class="layout fit" style="position: relative; top: 0px;" style="overflow:hidden">
+  <table style="width: 100%; height: 100%;">
+    <tbody>
+      <tr>
+        <td style="background-color: #EDEDED; width: 200px; text-align: top; vertical-align: top;">
+        <div id="contactListWrapper" style="overflow: hidden;">
+          <div style="overflow: hidden; border-top: 1px solid #5B9BD5; border-left: 1px solid #5B9BD5; padding: 0px; margin: 0px; width: 220px;">
+            <span style="position: relative; margin-left: 5px; top: 6px; color: #1C68AC;">Add a New Contact</span>
+            <input type="button" value="Add..." onclick="javascript:addNewContact();" style="background-color: #ED7D31; color: #FFFFFF; cursor: pointer; height: 30px; width: 71px; margin: 0px; padding: 0px; border: 0px; float: right"/>
+          </div>
+          <div style="overflow: hidden; border: 0px; padding: 0px; margin: 0px; width: 220px;">
+            <input id="searchTerm" type="search" oninput="javascript:searchContacts();" placeholder="Search contacts" style="margin: 0px; padding: 0px; height: 30px; width: 150px;"/>
+            <input type="button" value="Search" onclick="javascript:searchContacts();" style="background-color: #5B9BD5; color: #FFFFFF; cursor: pointer; height: 30px; width: 70px; margin: 0px; padding: 0px; border: 0px; float: right"/>
+          </div>
+        <div id="contactListContainer" style="border: 1px solid #5B9BD5; overflow-x: hidden; overflow-y:auto; margin-top: 2px; text-align: top;">
+          <table style="border-collapse: collapse; width: 100%;">
+            <tbody id="contactList">            
+            </tbody>
+          </table>
+        </div>
+        </div>
+        </td>
+        <td id="contactCardCell" style="width:70%">
+          <div id="contactCardWrapper" style="height: 100%; overflow:hidden">
+          <div id="contactCard" style="overflow-y: auto; overflow-x: hidden;">            
+            <img id="contactCardPic" title="Click to show large picture" onclick="javascript:showLargePicture();" src="/images/add-user.png" style="cursor: zoom-in;"/>
+            <div id="fullName"></div>
+            <div id="NICKNAME"></div>
+            <i id="editButton" class="fa fa-edit fa-lg" title="Edit..." onclick="javascript:editSelectedContact();"></i>
+            <div id="contactAccordionContainer">
+              <div id="contactAccordion" style="display: none; position: relative; top: -25px; left: 10px">
+                <h4 class="contactAccordionTab">Personal</h4>            
+                <div>
+                  <div id="relationship" class="contactElement" style="display:none">
+                  </div>
+                  <div id="HOME_ADDRESS" class="contactElement" style="display:none">
+                  </div>
+                  <div id="HOME_PHONE_NUMBER" class="contactElement" style="display:none">
+                  </div>
+                  <div id="MOBILE_PHONE_NUMBER" class="contactElement" style="display:none">
+                  </div>                  
+                  <div id="EMAIL" class="contactElement" style="display:none">
+                  </div>
+                  <div id="BIRTHDAY" class="contactElement" style="display:none">
+                  </div>                  
+                  <div id="SPOUSE_NAME" class="contactElement" style="display:none">
+                  </div>
+                  <div id="ANNIVERSARY" class="contactElement" style="display:none">
+                  </div>
+                  <div id="CHILDRENS_NAMES" class="contactElement" style="display:none">
+                  </div>
+                  <div id="NOTES" class="contactElement" style="display:none">
+                  </div>                 
+                </div>
+                <h4 class="contactAccordionTab">Work</h4>
+                <div>
+                  <div id="JOB_TITLE" class="contactElement" style="display:none">
+                  </div>
+                  <div id="COMPANY_NAME" class="contactElement" style="display:none">
+                  </div>
+                  <div id="WORK_ADDRESS" class="contactElement" style="display:none">
+                  </div>              
+                  <div id="WORK_PHONE_NUMBER" class="contactElement" style="display:none">
+                  </div>
+                  <div id="WORK_EMAIL" class="contactElement" style="display:none">
+                  </div>
+                  <div id="ASSISTANT_PHONE_NUMBER" class="contactElement" style="display:none">
+                  </div>
+                </div>
+                <h4 class="contactAccordionTab">Media</h4>
+                <div>
+                  <div id="FACEBOOK_PAGE" class="contactElement" style="display:none">
+                  </div>
+                  <div id="SKYPE" class="contactElement" style="display:none">
+                  </div>
+                  <div id="WEB_SITE_URL" class="contactElement" style="display:none">
+                  </div>
+                  <div id="BLOG_PAGE" class="contactElement" style="display:none">
+                  </div>
+                  <div id="WHATSAPP" class="contactElement" style="display:none">
+                  </div>
+                  <div id="WECHAT" class="contactElement" style="display:none">
+                  </div>
+                  <div id="QQ_ADDRESS" class="contactElement" style="display:none">
+                  </div>
+                  <div id="OTHER_IM" class="contactElement" style="display:none">
+                  </div>                                                      
+                </div>
+              </div>
+            </div>
+          </div>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div id="editContactDialog" style="display:none">
+  <div id="editContactDialogContent">
+    <table style="width: 100%; height: 100%;">
+      <tbody>
+        <tr>
+          <td id="editContactCardCell" style="width:100%">
+            <div id="editContactCard">            
+              <img id="editContactCardPic" src="/images/add-user.png"/>
+              <img id="deleteContactPic" title="Click to remove the picture" onclick="javascript:removeContactPicture();" src="/images/delete_x.png" style="cursor: pointer; position: relative; left: -95px; top: 5px;"/>
+              <div id="editNameBlock">
+                <div id="editFirstName"></div>
+                <div id="editMiddleName"></div>
+                <div id="editFamilyName"></div>              
+                <div id="editNICKNAME"></div>
+                <div id="editRelationship"></div>
+              </div>
+              <div id="contactData" style="position: absolute; top: 120px; left: 20px">
+                <h4 class="contactSection">Personal</h4>            
+                <div id="contactSectionPersonal">                  
+                </div>
+                <h4 class="contactSection">Work</h4>
+                <div id="contactSectionWork">
+                </div>
+                <h4 class="contactSection">Media</h4>
+                <div id="contactSectionMedia">                                                      
+                </div>
+              </div>
+
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>  
+  </div>
+</div> 
+
+<div id="selectContactDataTypePanel" style="display: none;">
+  <input type="radio" name="contactDataType" id="inputANNIVERSARY" value="ANNIVERSARY" />Anniversary<br />
+  <input type="radio" name="contactDataType" id="inputASSISTANT_PHONE_NUMBER" value="ASSISTANT_PHONE_NUMBER" />Assistant Phone<br />
+  <input type="radio" name="contactDataType" id="inputBIRTHDAY" value="BIRTHDAY" />Birthday<br />
+  <input type="radio" name="contactDataType" id="inputBLOG_PAGE" value="BLOG_PAGE" />Blog<br />
+  <input type="radio" name="contactDataType" id="inputCHILDRENS_NAMES" value="CHILDRENS_NAMES"/>Children's Names<br />
+  <input type="radio" name="contactDataType" id="inputCOMPANY_NAME" value="COMPANY_NAME" />Company<br />
+  <input type="radio" name="contactDataType" id="inputEMAIL" value="EMAIL" />Email<br />
+  <input type="radio" name="contactDataType" id="inputFACEBOOK_PAGE" value="FACEBOOK_PAGE" />Facebook<br />
+  <input type="radio" name="contactDataType" id="inputFILE_AS_NAME" value="FILE_AS_NAME" />File As<br />
+  <input type="radio" name="contactDataType" id="inputHOME_ADDRESS" value="HOME_ADDRESS" />Home Address<br />
+  <input type="radio" name="contactDataType" id="inputHOME_PHONE_NUMBER" value="HOME_PHONE_NUMBER" />Home Phone<br />
+  <input type="radio" name="contactDataType" id="inputJOB_TITLE" value="JOB_TITLE" />Title<br />
+  <input type="radio" name="contactDataType" id="inputMOBILE_PHONE_NUMBER" value="MOBILE_PHONE_NUMBER" />Mobile/Cell<br />
+  <input type="radio" name="contactDataType" id="inputNICKNAME" value="NICKNAME" />Nickname<br />
+  <input type="radio" name="contactDataType" id="inputNOTES" value="NOTES" />Notes<br />  
+  <input type="radio" name="contactDataType" id="inputOTHER_IM" value="OTHER_IM" />Other IM<br />  
+  <input type="radio" name="contactDataType" id="inputQQ_ADDRESS" value="QQ_ADDRESS" />QQ<br />  
+  <input type="radio" name="contactDataType" id="inputSKYPE" value="SKYPE" />Skype<br />  
+  <input type="radio" name="contactDataType" id="inputSPOUSE_NAME" value="SPOUSE_NAME" />Spouse's Name<br />
+  <input type="radio" name="contactDataType" id="inputWEB_SITE_URL" value="WEB_SITE_URL" />Web Site<br />
+  <input type="radio" name="contactDataType" id="inputWE_CHAT" value="WE_CHAT" />WeChat<br />
+  <input type="radio" name="contactDataType" id="inputWHATSAPP" value="WHATSAPP" />WhatsApp<br />
+  <input type="radio" name="contactDataType" id="inputWORK_ADDRESS" value="WORK_ADDRESS" />Work Address<br />
+  <input type="radio" name="contactDataType" id="inputWORK_EMAIL" value="WORK_EMAIL" />Work Email<br />
+  <input type="radio" name="contactDataType" id="inputWORK_PHONE_NUMBER" value="WORK_PHONE_NUMBER" />Work Phone<br />
+</div>
+
+<div id="largePicture" style="display:none">
+  <div id="largePictureFrame" style="text-align: center;">
+    <img id="largePictureImg" style="height: 300px; border: none" />
+  </div>
+</div>
+
+<iron-ajax id="contactsajax" url="" handle-as="json" on-response="hresponse" debounce-duration="300">
+</iron-ajax>
+  
+</template>
+
+<script>
+  var _this = null;  
+  var contacts = null;
+  var selectedContact = null;
+  var emptyFieldLabel = "** Click to edit **";
+  var pictureDropzone = null;
+  
+  jQuery.fn.editable.defaults.mode = 'inline';
+  Dropzone.autoDiscover = false;
+  
+  Polymer(
+  {
+      is : 'friday-contacts',
+      behaviors : [ Polymer.IronResizableBehavior ],
+      getContacts : function()
+      {          
+          this.$.contactsajax.url = getBaseLocation() + "/getContactsForUser";          
+          this.$.contactsajax.method = "GET";
+          this.$.contactsajax.generateRequest();
+      },
+      addOrUpdateContact : function(contactData)
+      {
+		  showSpinner();
+          
+          var token = jQuery("meta[name='_csrf']").attr("content");
+  		  var header = jQuery("meta[name='_csrf_header']").attr("content");
+  		    		  
+          jQuery.ajax(
+          {
+              beforeSend: function (request)
+              {
+                  request.setRequestHeader("_csrf_parameter", "_csrf");
+                  request.setRequestHeader("_csrf", token);
+                  request.setRequestHeader("_csrf_header", header);
+                  request.setRequestHeader(header, token);
+              },
+              type : "POST",
+              url : getBaseLocation() + "/addOrUpdateContact",
+              contentType : "application/json; charset=utf-8",
+              dataType : "text",
+              data: JSON.stringify(contactData),
+              success : function(data)
+              {
+                  var submitStatus = data;
+                  
+                  if (submitStatus != "OK")
+                  {
+                      hideSpinner();
+                      showAlert("MyFriday Error", submitStatus);                
+                  }
+                  
+                  var contactsObj = document.querySelector('friday-contacts');
+                  contactsObj.refreshContacts();
+              },
+              error : function(jqXHR, textStatus, errorThrown)
+              {
+                  hideSpinner();
+                  showAlert("MyFriday Error", errorThrown);
+                  var contactsObj = document.querySelector('friday-contacts');
+                  contactsObj.refreshContacts();                  
+              }
+          });
+      },      
+      hresponse : function(request)
+      {
+          contacts = this.$.contactsajax.lastResponse;
+          
+          this.fire('contacts-changed',
+          {
+              contactsChanged : true
+          });
+      },
+      attached : function()
+      {
+          _this = this;
+          this.async(this.notifyResize, 1);
+      },
+      ready: function()
+      {
+          this.getContacts();
+      },
+      listeners :
+      {
+          'iron-resize'	 : '_onIronResize',
+          'contacts-changed' : '_onContactsChange'
+      },
+      properties :
+      {
+      },
+      _onIronResize : function()
+      {
+          var infoCard = jQuery("#infoCard");
+          var cardHeight = infoCard.height();
+          var cardWidth = infoCard.width();
+          
+          var contactsContainer = jQuery("#contactsContainer");
+          contactsContainer.height(cardHeight - 92);
+          
+          var contactListWrapper = jQuery("#contactListWrapper");
+          contactListWrapper.height(cardHeight - 92);
+
+          var contactList = jQuery("#contactList");
+          contactList.height(cardHeight - 92);          
+          
+          var contactCard = jQuery("#contactCard");
+          contactCard.height(cardHeight - 92);          
+          
+          var contactListContainer = jQuery("#contactListContainer");
+          contactListContainer.height(cardHeight - 156);
+          
+          var contactAccordionContainer = jQuery("#contactAccordionContainer");
+          contactAccordionContainer.height(cardHeight - 250);
+          
+          var contactAccordion = jQuery("#contactAccordion");
+          contactAccordion.width(cardWidth - 250);
+      },
+      _onContactsChange : function()
+      {
+          this.updateContactsDisplay();
+
+          // after everything is received, parsed, and UI built,
+          // new requests to get contact data can be accepted
+          gettingContacts = false;          
+      },
+      
+      refreshContacts : function()
+      {         
+          gettingContacts = true;
+          var contactsObj = document.querySelector('friday-contacts');
+          contactsObj.getContacts();
+      },
+      
+      updateContactsDisplay : function()
+      {
+          this.buildContactsDisplay();        
+      },
+
+      buildContactsDisplay : function()
+      {          
+          var contactList = jQuery("#contactList");
+          contactList.empty();
+                    
+          //alert(JSON.stringify(contacts.length));
+          
+          if (contacts != null)
+          {
+              for (var i = 0; i < contacts.length; i++)
+              {
+                  var contactRow = document.createElement("tr");
+                  contactList.append(contactRow);
+                  contactRow.id = "contact_" + i;
+                  var contactRowElem = jQuery(contactRow);
+                                    
+                  var contactCell = document.createElement("td");
+                  contactRowElem.append(contactCell);
+                  var contactCellElem = jQuery(contactCell);
+                  contactCellElem.height("54px");
+                  contactCellElem.css("background-color", "#FFFFFF");
+                  contactCellElem.css("border-bottom", "1px solid #5B9BD5");
+                  contactCellElem.css("padding", "0px");
+                  contactCellElem.css("cursor", "pointer");
+                  contactCellElem.data("data", contacts[i]);
+                  contactCellElem.on("click", function()
+                  {
+                     var elem = jQuery(this);
+                     var contactData = elem.data("data");
+                     showContactCard(contactData);
+                  });
+                  
+                  var contactPic = document.createElement("img");
+                  contactCellElem.append(contactPic);
+                  contactPicElem = jQuery(contactPic);
+                  
+                  contactPicElem.css("height", "48px");
+                  contactPicElem.css("width", "48px");
+                  contactPicElem.css("margin-top", "4px");
+                  contactPicElem.css("margin-left", "4px");
+                  
+                  if (contacts[i].contactPicture != null && contacts[i].contactPicture.length > 0)
+                  {
+                      // contact pictures are stored as base64 strings
+                      contactPicElem.attr("src", contacts[i].contactPicture);
+                  }
+                  else
+                  {
+                      contactPicElem.attr("src", "/images/add-user.png");
+                  }
+                  
+                  var contactNameDiv = document.createElement("div");                  
+                  contactCellElem.append(contactNameDiv);
+                  
+                  contactNameDivElem = jQuery(contactNameDiv);
+                  contactNameDivElem.css("display", "inline");
+                  contactNameDivElem.css("position", "relative");
+                  contactNameDivElem.css("bottom", "18px");
+                  contactNameDivElem.css("margin-left", "10px");
+                  contactNameDivElem.css("font", "bold normal 16px Calibri, sans-serif");
+                  contactNameDivElem.css("color", "#5B9BD5");
+                  contactNameDivElem.append(document.createTextNode(contacts[i].givenName + " " + contacts[i].familyName));
+              }
+          }
+          
+          if (selectedContact != null)
+          {
+              for (var i = 0; i < contacts.length; i++)
+              {
+                  if (selectedContact.userContactId == contacts[i].userContactId)
+                  {
+                      // found the selected contact, so update the contact card display
+                      showContactCard(contacts[i]);
+                  }
+              }
+          }
+          else
+          {
+              var contactPic = jQuery("#contactCardPic");
+              contactPic.attr("src", "/images/add-user.png");
+              
+              var fullNameElem = jQuery("#fullName");
+              fullNameElem.empty();
+              
+              jQuery("#ANNIVERSARY").empty();
+              jQuery("#ASSISTANT_PHONE_NUMBER").empty();
+        	  jQuery("#BIRTHDAY").empty();
+        	  jQuery("#BLOG_PAGE").empty();
+        	  jQuery("#CHILDRENS_NAMES").empty();
+        	  jQuery("#COMPANY_NAME").empty();
+        	  jQuery("#EMAIL").empty();
+        	  jQuery("#FACEBOOK_PAGE").empty();
+        	  jQuery("#FILE_AS_NAME").empty();
+        	  jQuery("#HOME_ADDRESS").empty();
+        	  jQuery("#HOME_PHONE_NUMBER").empty();
+        	  jQuery("#JOB_TITLE").empty();
+        	  jQuery("#MOBILE_PHONE_NUMBER").empty();
+        	  jQuery("#NICKNAME").empty();
+        	  jQuery("#NOTES").empty();
+              jQuery("#OTHER_IM").empty();
+              jQuery("#QQ_ADDRESS").empty();
+              jQuery("#SKYPE").empty();
+              jQuery("#SPOUSE_NAME").empty();
+              jQuery("#WEB_SITE_URL").empty();
+              jQuery("#WECHAT").empty();
+              jQuery("#WHATSAPP").empty();
+              jQuery("#WORK_ADDRESS").empty();
+              jQuery("#WORK_EMAIL").empty();
+              jQuery("#WORK_PHONE_NUMBER").empty();              
+              
+              var relationshipElem = jQuery("#relationshipWrapper");
+              relationshipElem.empty();
+          }
+                  
+          hideSpinner();
+      }      
+  });
+ 
+  showContactCard = function(contactData)
+  {
+      //alert(JSON.stringify(contactData.contactDetails));
+	  selectedContact = contactData;
+	  
+      var contactCard = jQuery("#contactCard");
+      var contactAccordion = $( "#contactAccordion" );
+      contactAccordion.css("display", "block");
+      
+      var contactPic = jQuery("#contactCardPic");
+      
+      if (contactData.contactPicture != null && contactData.contactPicture.length > 0)
+      {
+          // contact pictures are stored as base64 strings
+          contactPic.attr("src", contactData.contactPicture);
+      }
+      else
+      {
+          contactPic.attr("src", "/images/add-user.png");
+      }
+      
+      var fullNameElem = jQuery("#fullName");
+      
+      if (contactData.showFamilyNameFirst)
+      {
+          var fullName = "";
+          
+          if (contactData.familyName != null && contactData.familyName.toLowerCase() != "null")
+          {
+              fullName += contactData.familyName;
+          }
+          
+          if (contactData.givenName != null && contactData.givenName.toLowerCase() != "null")
+          {
+              fullName += " " + contactData.givenName;
+          }
+          
+          if (contactData.middleName != null && contactData.middleName.toLowerCase() != "null")
+          {
+              fullName += " " + contactData.middleName;
+          }
+       
+          fullNameElem.html(fullName);
+      }
+      else
+      {
+          var fullName = "";
+          
+          if (contactData.givenName != null && contactData.givenName.toLowerCase() != "null")
+          {
+              fullName += contactData.givenName;
+          }
+          
+          if (contactData.middleName != null && contactData.middleName.toLowerCase() != "null")
+          {
+              fullName += " " + contactData.middleName;
+          }
+                    
+          if (contactData.familyName != null && contactData.familyName.toLowerCase() != "null")
+          {
+              fullName += " " + contactData.familyName;
+          }
+                    
+          fullNameElem.html(fullName);  
+      }  
+      
+      jQuery("#ANNIVERSARY").empty();
+      jQuery("#ASSISTANT_PHONE_NUMBER").empty();
+	  jQuery("#BIRTHDAY").empty();
+	  jQuery("#BLOG_PAGE").empty();
+	  jQuery("#CHILDRENS_NAMES").empty();
+	  jQuery("#COMPANY_NAME").empty();
+	  jQuery("#EMAIL").empty();
+	  jQuery("#FACEBOOK_PAGE").empty();
+	  jQuery("#FILE_AS_NAME").empty();
+	  jQuery("#HOME_ADDRESS").empty();
+	  jQuery("#HOME_PHONE_NUMBER").empty();
+	  jQuery("#JOB_TITLE").empty();
+	  jQuery("#MOBILE_PHONE_NUMBER").empty();
+	  jQuery("#NICKNAME").empty();
+	  jQuery("#NOTES").empty();
+      jQuery("#OTHER_IM").empty();
+      jQuery("#QQ_ADDRESS").empty();
+      jQuery("#SKYPE").empty();
+      jQuery("#SPOUSE_NAME").empty();
+      jQuery("#WEB_SITE_URL").empty();
+      jQuery("#WECHAT").empty();
+      jQuery("#WHATSAPP").empty();
+      jQuery("#WORK_ADDRESS").empty();
+      jQuery("#WORK_EMAIL").empty();
+      jQuery("#WORK_PHONE_NUMBER").empty();
+      
+      if (contactData.contactDetails != null)
+      {
+          for (var i = 0; i < contactData.contactDetails.length; i++)
+          {
+            //alert(contactData.contactDetails[i].detailKeyName);
+            
+            var contactElem = jQuery("#" + contactData.contactDetails[i].detailKeyName);
+            contactElem.css("display", "block");
+            
+            var currentContent = contactElem.html();
+            
+            var yearsOld = 0;
+            if (contactData.contactDetails[i].detailKeyName == "BIRTHDAY")
+            {
+                var birthday = moment(contactData.contactDetails[i].detailKeyValue, "MMM DD YYYY");
+                var today = moment();
+                
+                var yearsOld = moment.duration(today.diff(birthday));
+                
+                var age = (Math.floor(yearsOld.asYears()));
+            }
+
+            if (contactData.contactDetails[i].detailKeyName == "NICKNAME")
+            {
+                var newContent = currentContent;
+                
+                if (newContent.length == 0)
+                {
+                    newContent = contactData.contactDetails[i].detailKeyValue;
+                }
+                else
+                {
+                    newContent += ", " + contactData.contactDetails[i].detailKeyValue;
+                }
+                
+                contactElem.html(newContent);
+            }
+            else
+            {
+                var newContent = currentContent
+                	+ "<div><table><tr><td style='vertical-align: top; width: 100px; min-width: 100px;'>"
+                	+ contactData.contactDetails[i].detailKeyDisplayName
+                	+ "</td><td>"
+                	+ contactData.contactDetails[i].detailKeyValue;
+              	
+    		    if (yearsOld > 0)
+    		    {
+    		      newContent += "&nbsp;&nbsp;Age: <span id='ageValue'>" + age + "</span>";
+    		    }
+    		    
+    		  	newContent += "</td></tr></table>"
+        
+    		    newContent += "</div>";
+                      
+              contactElem.html(newContent);
+            }
+          }
+      }
+
+      var relationshipElem = jQuery("#relationshipWrapper");
+      relationshipElem.empty();
+      
+      if (contactData.relationship != null && contactData.relationship.length > 0)
+      {
+          relationshipElem.html("Relationship: <span id='relationship'" + contactData.relationship.toLowerCase() + "</span>");     
+    	  relationshipElem.css("display", "block");
+      	  relationshipElem.css("text-transform", "capitalize");
+      }
+      else
+      {
+    	  relationshipElem.css("display", "none");          
+      }
+  }
+
+  editSelectedContact = function()
+  {
+      //alert(JSON.stringify(selectedContact));
+      if (selectedContact != null)
+      {          
+        var editContactDlg = document.getElementById("editContactDialog");
+  
+        if (jQuery(editContactDlg).hasClass("ui-dialog-content"))
+        {
+            var isOpen = jQuery("#editContactDialog").dialog("isOpen");
+            
+            if (isOpen)
+            {
+                jQuery("#editContactDialog").dialog("close");
+                return;
+            }
+        }
+                
+		//------------------------------------------------------------------------------------
+        
+        var contactPic = jQuery("#editContactCardPic");
+        
+        if (selectedContact.contactPicture != null && selectedContact.contactPicture.length > 0)
+        {
+            // contact pictures are stored as base64 strings
+            contactPic.attr("src", selectedContact.contactPicture);
+            jQuery("#deleteContactPic").show();
+        }
+        else
+        {
+            contactPic.attr("src", "/images/add-user.png");
+            jQuery("#deleteContactPic").hide();
+        }
+
+        if (jQuery(contactPic).hasClass("dz-clickable"))
+        {
+            if (pictureDropzone != null)
+            {
+                pictureDropzone.destroy();
+            }
+        }
+        
+        contactPic.css("cursor", "pointer");
+        contactPic.attr("title", "Click to change the picture");
+        
+        
+        pictureDropzone = new Dropzone("#editContactCardPic",
+                {url: function(files){uploadContactPicture(files);},
+                 uploadMultiple: false,
+                 previewsContainer: "#editContactCardPic",
+                 thumbnailWidth: 80,
+                 thumbnailHeight: 80,
+                 createImageThumbnails: true,
+                 acceptedFiles: ".png, .bmp, .jpeg, .jpg",
+                 maxFilesize: 1,
+                 autoProcessQueue: true
+                });        
+        
+        var editNameBlock = jQuery("#editNameBlock");
+		editNameBlock.empty();
+        
+		var editNameBlockTbl = jQuery(document.createElement("table"));
+		editNameBlock.append(editNameBlockTbl);
+		editNameBlockTbl.css("width", "460px");
+		
+		var editNameBlockTblBdy = jQuery(document.createElement("tbody"));
+		editNameBlockTbl.append(editNameBlockTblBdy);
+
+        var editRow = jQuery(document.createElement("tr"));
+        editNameBlockTblBdy.append(editRow);
+        var editCell = jQuery(document.createElement("td"));
+        editCell.css("font", "bold normal 18px Calibri, sans-serif");
+        editCell.css("width", "110px");
+        editRow.append(editCell);
+        editCell.append(jQuery(document.createTextNode("First Name: ")));
+
+        var editCell2  = jQuery(document.createElement("td"));
+        editRow.append(editCell2);
+        editCell2.css("width", "250px");
+        var editAnchor1 = jQuery(document.createElement("a"));
+        editCell2.append(editAnchor1);
+        editAnchor1.attr("id", "editGivenName");
+        editAnchor1.href = "#";
+        editAnchor1.data("type", "text");
+        editAnchor1.data("emptytext", emptyFieldLabel);
+		
+        if (selectedContact.givenName != null && selectedContact.givenName.toLowerCase() != "null")
+        {            
+            editAnchor1.append(jQuery(document.createTextNode(selectedContact.givenName)));
+            editAnchor1.css("font", "bold normal 18px Calibri, sans-serif");
+        }
+        else
+        {
+            editAnchor1.append(jQuery(document.createTextNode("")));
+            editAnchor1.css("font", "bold normal 14px Calibri, sans-serif");
+        }
+        
+        jQuery(editAnchor1).editable();
+
+        var editRow = jQuery(document.createElement("tr"));
+        editNameBlockTblBdy.append(editRow);
+        var editCell = jQuery(document.createElement("td"));
+        editRow.append(editCell);
+        editCell.css("font", "bold normal 18px Calibri, sans-serif");
+        editCell.css("width", "110px");
+        editCell.append(jQuery(document.createTextNode("Middle Name: ")));
+
+        var editCell2  = jQuery(document.createElement("td"));
+        editRow.append(editCell2);
+        editCell2.css("width", "250px");
+        var editAnchor2 = jQuery(document.createElement("a"));
+        editCell2.append(editAnchor2);
+        editAnchor2.attr("id", "editMiddleName");
+        editAnchor2.href = "#";
+        editAnchor2.data("type", "text");
+        editAnchor2.data("emptytext", emptyFieldLabel);
+        
+        if (selectedContact.middleName != null && selectedContact.middleName.toLowerCase() != "null")
+        {
+            editAnchor2.append(jQuery(document.createTextNode(selectedContact.middleName)));
+            editAnchor2.css("font", "bold normal 18px Calibri, sans-serif");
+        }
+        else
+        {
+            editAnchor2.append(jQuery(document.createTextNode("")));
+            editAnchor2.css("font", "bold normal 14px Calibri, sans-serif");
+        }
+        
+        jQuery(editAnchor2).editable();
+
+        var editRow = jQuery(document.createElement("tr"));
+        editNameBlockTblBdy.append(editRow);
+        var editCell = jQuery(document.createElement("td"));
+        editRow.append(editCell);
+        editCell.css("font", "bold normal 18px Calibri, sans-serif");
+        editCell.css("width", "110px");
+        editCell.append(jQuery(document.createTextNode("Family Name: ")));
+
+        var editCell2  = jQuery(document.createElement("td"));
+        editRow.append(editCell2);
+        editCell2.css("width", "250px");
+        var editAnchor3 = jQuery(document.createElement("a"));
+        editCell2.append(editAnchor3);
+        editAnchor3.attr("id", "editFamilyName");
+        editAnchor3.href = "#";
+        editAnchor3.data("type", "text");
+        editAnchor3.data("emptytext", emptyFieldLabel);
+        
+        if (selectedContact.familyName != null && selectedContact.familyName.toLowerCase() != "null")
+        {            
+            editAnchor3.append(jQuery(document.createTextNode(selectedContact.familyName)));
+            editAnchor3.css("font", "bold normal 18px Calibri, sans-serif");
+        }
+        else
+        {
+            editAnchor3.append(jQuery(document.createTextNode("")));
+            editAnchor3.css("font", "bold normal 14px Calibri, sans-serif");
+        }
+
+        jQuery(editAnchor3).editable();
+        
+        var editRow = jQuery(document.createElement("tr"));
+        editNameBlockTblBdy.append(editRow);
+        var editCell = jQuery(document.createElement("td"));
+        editRow.append(editCell);
+        editCell.css("font", "bold normal 14px Calibri, sans-serif");
+        editCell.css("width", "110px");
+        editCell.append(jQuery(document.createTextNode("Relationship: ")));
+
+        var editCell2  = jQuery(document.createElement("td"));
+        editRow.append(editCell2);
+        editCell2.css("width", "250px");
+        var editAnchor4 = jQuery(document.createElement("a"));
+        editCell2.append(editAnchor4);
+        editAnchor4.attr("id", "editRelationship");
+        editAnchor4.href = "#";
+        editAnchor4.data("type", "select");
+        editAnchor4.data("emptytext", emptyFieldLabel);
+        editAnchor4.css("font", "bold normal 14px Calibri, sans-serif");
+        editAnchor4.css("text-transform", "capitalize");
+        
+        var relationshipTypes = [
+        {"value": "ACQUAINTANCE", "text": "Acquaintance"},
+        {"value": "AUNT", "text": "Aunt"},
+        {"value": "BOYFRIEND", "text": "Boyfriend"},
+        {"value": "BROTHER", "text": "Brother"},
+        {"value": "COWORKER", "text": "Co-worker"},
+        {"value": "DAUGHTER", "text": "Daughter"},
+        {"value": "FATHER", "text": "Father"},
+        {"value": "FIANCE", "text": "Fiance"},
+        {"value": "FRIEND", "text": "Friend"},
+        {"value": "GIRLFRIEND", "text": "Girlfriend"},
+        {"value": "GRANDDAUGHER", "text": "Granddaughter"},
+        {"value": "GRANDFATHER", "text": "Grandfather"},
+        {"value": "GRANDMOTHER", "text": "Grandmother"},
+        {"value": "GRANDSON", "text": "Grandson"},
+        {"value": "HUSBAND", "text": "Husband"},
+        {"value": "MOTHER", "text": "Mother"},
+        {"value": "OTHER", "text": "Other"},
+        {"value": "SISTER", "text": "Sister"},
+        {"value": "SON", "text": "Son"},
+        {"value": "STEP-BROTHER", "text": "Step-brother"},
+        {"value": "STEP-DAUGHTER", "text": "Step-daughter"},
+        {"value": "STEP-FATHER", "text": "Step-father"},
+        {"value": "STEP-MOTHER", "text": "Step-mother"},
+        {"value": "STEP-SISTER", "text": "Step-sister"},
+        {"value": "STEP-SON", "text": "Step-son"},
+        {"value": "STRANGER", "text": "Stranger"},
+        {"value": "UNCLE", "text": "Uncle"},
+        {"value": "WIFE", "text": "Wife"},
+    	];
+        
+        editAnchor4.data("source", relationshipTypes);
+        
+        if (selectedContact.relationship != null && selectedContact.relationship.toLowerCase() != "null")
+        {
+            editAnchor4.append(jQuery(document.createTextNode(selectedContact.relationship.toLowerCase())));
+        }        
+                
+        jQuery(editAnchor4).editable();
+        
+        jQuery("#contactSectionPersonal").empty();
+        jQuery("#contactSectionWork").empty();
+        jQuery("#contactSectionMedia").empty();
+        
+        var contactSectionPersonal = jQuery("#contactSectionPersonal");
+        var contactSectionWork = jQuery("#contactSectionWork");
+        var contactSectionMedia = jQuery("#contactSectionMedia");
+        
+        var contactSectionPersonalTbl = jQuery(document.createElement("table"));
+        contactSectionPersonal.append(contactSectionPersonalTbl);
+        var contactSectionPersonalTblBdy = jQuery(document.createElement("tbody"));
+        contactSectionPersonalTbl.append(contactSectionPersonalTblBdy);
+        contactSectionPersonalTblBdy.attr("id", "contactSectionPersonalTblBdy");
+        
+        var contactSectionWorkTbl = jQuery(document.createElement("table"));
+        contactSectionWork.append(contactSectionWorkTbl);
+        var contactSectionWorkTblBdy = jQuery(document.createElement("tbody"));
+        contactSectionWorkTbl.append(contactSectionWorkTblBdy);        
+        contactSectionWorkTblBdy.attr("id", "contactSectionWorkTblBdy");
+        
+        var contactSectionMediaTbl = jQuery(document.createElement("table"));
+        contactSectionMedia.append(contactSectionMediaTbl);
+        var contactSectionMediaTblBdy = jQuery(document.createElement("tbody"));
+        contactSectionMediaTbl.append(contactSectionMediaTblBdy);        
+        contactSectionMediaTblBdy.attr("id", "contactSectionMediaTblBdy");
+        
+        if (selectedContact.contactDetails != null)
+        {
+            for (var i = 0; i < selectedContact.contactDetails.length; i++)
+            {
+              var contactSection = null;
+                
+              //alert(contactData.contactDetails[i].detailKeyName);
+              if (selectedContact.contactDetails[i].detailKeyName == "ANNIVERSARY"
+              || selectedContact.contactDetails[i].detailKeyName == "BIRTHDAY"
+              || selectedContact.contactDetails[i].detailKeyName == "CHILDRENS_NAMES"              
+              || selectedContact.contactDetails[i].detailKeyName == "EMAIL"
+              || selectedContact.contactDetails[i].detailKeyName == "FILE_AS_NAME"
+              || selectedContact.contactDetails[i].detailKeyName == "HOME_ADDRESS"              
+              || selectedContact.contactDetails[i].detailKeyName == "HOME_PHONE_NUMBER"              
+              || selectedContact.contactDetails[i].detailKeyName == "MOBILE_PHONE_NUMBER"
+              || selectedContact.contactDetails[i].detailKeyName == "NICKNAME"
+              || selectedContact.contactDetails[i].detailKeyName == "NOTES"              
+              || selectedContact.contactDetails[i].detailKeyName == "SPOUSE_NAME")
+              {              
+              	contactSection = contactSectionPersonalTblBdy;
+              }
+              else if (selectedContact.contactDetails[i].detailKeyName == "ASSISTANT_PHONE_NUMBER"
+                   || selectedContact.contactDetails[i].detailKeyName == "COMPANY_NAME"
+                   || selectedContact.contactDetails[i].detailKeyName == "JOB_TITLE"
+                   || selectedContact.contactDetails[i].detailKeyName == "WORK_ADDRESS"                   
+                   || selectedContact.contactDetails[i].detailKeyName == "WORK_EMAIL"
+                   || selectedContact.contactDetails[i].detailKeyName == "WORK_PHONE_NUMBER")
+              {
+                contactSection = contactSectionWorkTblBdy;
+              }
+              else
+              {
+                contactSection = contactSectionMediaTblBdy;                  
+              }
+
+              var newRow = jQuery(document.createElement("tr"));
+              contactSection.append(newRow);
+              
+      		  var newCell = jQuery(document.createElement("td"));
+      		  newRow.append(newCell);
+      		  newCell.css("font", "bold normal 14px Calibri, sans-serif");
+      		  newCell.css("color", "#555555");
+      		  newCell.html(jQuery(document.createTextNode(selectedContact.contactDetails[i].detailKeyDisplayName + ": ")));
+
+      		  var newCell2 = jQuery(document.createElement("td"));
+      		  newRow.append(newCell2);
+      		  
+              var newAnchor = jQuery(document.createElement("a"));
+              newCell2.append(newAnchor);
+              newAnchor.attr("id", "editContactElem" + i);
+              newAnchor.css("font", "bold normal 14px Calibri, sans-serif");
+              newAnchor.css("color", "#1C68AC");
+              newAnchor.data("contactkeyname", selectedContact.contactDetails[i].detailKeyName);
+              newAnchor.href = "#";
+              
+              newAnchor.append(document.createTextNode(selectedContact.contactDetails[i].detailKeyValue));
+                
+              if (selectedContact.contactDetails[i].detailKeyName == "BLOG_PAGE"
+              || selectedContact.contactDetails[i].detailKeyName == "COMPANY_NAME"
+              || selectedContact.contactDetails[i].detailKeyName == "FACEBOOK_PAGE"
+              || selectedContact.contactDetails[i].detailKeyName == "FILE_AS_NAME"
+              || selectedContact.contactDetails[i].detailKeyName == "HOME_PHONE_NUMBER"
+              || selectedContact.contactDetails[i].detailKeyName == "JOB_TITLE"
+              || selectedContact.contactDetails[i].detailKeyName == "NICKNAME"
+              || selectedContact.contactDetails[i].detailKeyName == "OTHER_IM"
+              || selectedContact.contactDetails[i].detailKeyName == "QQ_ADDRESS"
+              || selectedContact.contactDetails[i].detailKeyName == "SKYPE"
+              || selectedContact.contactDetails[i].detailKeyName == "SPOUSE_NAME"
+              || selectedContact.contactDetails[i].detailKeyName == "WEB_SITE_URL"
+              || selectedContact.contactDetails[i].detailKeyName == "WECHAT"
+              || selectedContact.contactDetails[i].detailKeyName == "WHATSAPP")
+              {
+			      newAnchor.data("type", "text");                
+              }
+              else if (selectedContact.contactDetails[i].detailKeyName == "EMAIL"
+                  || selectedContact.contactDetails[i].detailKeyName == "WORK_EMAIL")
+              {
+			      newAnchor.data("type", "email");               
+              }
+              else if (selectedContact.contactDetails[i].detailKeyName == "ASSISTANT_PHONE_NUMBER"
+                  || selectedContact.contactDetails[i].detailKeyName == "HOME_PHONE_NUMBER"
+                  || selectedContact.contactDetails[i].detailKeyName == "MOBILE_PHONE_NUMBER"
+                  || selectedContact.contactDetails[i].detailKeyName == "WORK_PHONE_NUMBER")
+              {
+			      newAnchor.data("type", "tel");               
+              }               
+              else if (selectedContact.contactDetails[i].detailKeyName == "ANNIVERSARY"
+                    || selectedContact.contactDetails[i].detailKeyName == "BIRTHDAY")
+              {
+			      newAnchor.data("type", "combodate");
+			      newAnchor.data("combodate", '{"minYear":' + "'1900'}");
+			      newAnchor.data("template", "MMM-D-YYYY");
+			      newAnchor.data("format", "MMM-D-YYYY");               
+              }
+              else if (selectedContact.contactDetails[i].detailKeyName == "HOME_ADDRESS"
+                  || selectedContact.contactDetails[i].detailKeyName == "WORK_ADDRESS"
+                  || selectedContact.contactDetails[i].detailKeyName == "NOTES")
+            {
+			      newAnchor.data("type", "textarea");                
+            }            
+            
+            newAnchor.data("emptytext", emptyFieldLabel);
+            jQuery(newAnchor).editable();
+        }
+      }
+      //------------------------------------------------------------------------------------
+      
+      jQuery("#editContactDialog").dialog(
+      {
+          title : "Edit Contact",
+          height : 600,
+          width : 600,
+          autoOpen : true,
+          modal : false,
+          resizable : false,
+          draggable : true,
+          buttons: [
+                    {
+                    	text: "Add Contact Data",
+                    	click: function()
+                    	{
+                        	selectContactDataType();                
+                    	}
+                    },
+                    {
+                    	text: "Delete Contact",
+                    	click: function()
+                    	{
+                        	confirmContactDeletion();             
+                    	}
+                    },
+                    {
+                      text: "Submit",
+                      click: function()
+                      {
+                        var contactData = getContactDataFromForm();
+                        
+                        if (contactData == null)
+                        {
+                            showAlert("Contact Data Error", "First name and family name are required.");
+                        }
+                        else
+                        {
+                            document.querySelector("friday-contacts").addOrUpdateContact(contactData);
+                        	jQuery( this ).dialog( "close" );
+                        }
+                      }
+                    },
+                    {
+                      text: "Cancel",
+                      click: function()
+                      {
+                        jQuery( this ).dialog( "close" );
+                      }
+                    }                      
+                   ]        
+      });
+
+      jQuery("#editContactDialog").parent().css("border", "1px solid #1E66A7");
+      jQuery("#editContactDialog").parent().find("button.ui-dialog-titlebar-close").blur();
+    
+      jQuery("#editContactDialog").parent().find("button:first-child").css("position", "absolute").css("left", "20px");
+      jQuery("#editContactDialog ui-dialog-buttonset").parent().find("button:nth-child(2)").css("position", "absolute").css("left", "200px");
+      
+    }
+  }
+  
+  showLargePicture = function()
+  {
+      if (selectedContact == null)
+      {
+          return;
+      }
+      
+      var largePictureDlg = document.getElementById("largePicture");
+
+      if ($(largePictureDlg).hasClass("ui-dialog-content"))
+      {
+          var isOpen = jQuery("#largePicture").dialog("isOpen");
+          
+          if (isOpen)
+          {
+              jQuery("#largePicture").dialog("close");
+              return;
+          }
+      }
+
+      if (selectedContact.contactPicture != null && selectedContact.contactPicture.length > 0)
+      {      
+      	var largePic = jQuery("#largePictureImg");
+      
+      	if (selectedContact.contactPicture != null && selectedContact.contactPicture.length > 0)
+      	{
+          // contact pictures are stored as base64 strings
+          largePic.attr("src", selectedContact.contactPicture);
+      	}
+      	else
+      	{
+      	  largePic.attr("src", "");
+      	}
+
+      	var fullName = "";
+      	
+        if (selectedContact.showFamilyNameFirst)
+        {           
+            if (selectedContact.familyName != null && selectedContact.familyName.toLowerCase() != "null")
+            {
+                fullName += selectedContact.familyName;
+            }
+            
+            if (selectedContact.givenName != null && selectedContact.givenName.toLowerCase() != "null")
+            {
+                fullName += " " + selectedContact.givenName;
+            }
+            
+            if (selectedContact.middleName != null && selectedContact.middleName.toLowerCase() != "null")
+            {
+                fullName += " " + selectedContact.middleName;
+            }         
+        }
+        else
+        {
+            if (selectedContact.givenName != null && selectedContact.givenName.toLowerCase() != "null")
+            {
+                fullName += selectedContact.givenName;
+            }
+            
+            if (selectedContact.middleName != null && selectedContact.middleName.toLowerCase() != "null")
+            {
+                fullName += " " + selectedContact.middleName;
+            }
+                      
+            if (selectedContact.familyName != null && selectedContact.familyName.toLowerCase() != "null")
+            {
+                fullName += " " + selectedContact.familyName;
+            }  
+        }      	
+      	
+        $("#largePicture").dialog(
+                {
+                    title : fullName,
+                    height : 475,
+                    width : 350,
+                    autoOpen : true,
+                    modal : false,
+                    resizable : false,
+                    draggable : true,
+                    buttons: [
+                              {
+                                  text: "Ok",
+                                  click: function()
+                                      {
+                                          $( this ).dialog( "close" );
+                                      }
+                                }          
+                              ]        
+                });
+
+                jQuery("#largePicture").parent().css("border", "1px solid #1E66A7");
+                jQuery("#largePicture").parent().find("button.ui-dialog-titlebar-close").blur();
+      }
+  }
+  
+  uploadContactPicture = function(uploadFile)
+  {
+      var reader = new FileReader();
+      
+      reader.onload = function(e)
+      {
+          var dataURL = reader.result;
+          jQuery("#editContactCardPic").attr("src", dataURL);
+          jQuery("#deleteContactPic").show();
+      }
+
+      reader.readAsDataURL(uploadFile[0]);
+      
+      return false;
+  }
+  
+  removeContactPicture = function()
+  {
+      jQuery("#editContactCardPic").attr("src", "images/add-user.png");
+      jQuery("#deleteContactPic").hide();    
+  }
+  
+  selectContactDataType = function()
+  {
+      var contactDataTypeSelectDlg = document.getElementById("selectContactDataTypePanel");
+
+      if (jQuery(contactDataTypeSelectDlg).hasClass("ui-dialog-content"))
+      {
+          var isOpen = jQuery("#selectContactDataTypePanel").dialog("isOpen");
+          
+          if (isOpen)
+          {
+              jQuery("#selectContactDataTypePanel").dialog("close");
+              return;
+          }
+      }
+      
+      jQuery("#selectContactDataTypePanel").parent().find(".ui-dialog-titlebar-close").removeAttr("title");      
+      jQuery("#selectContactDataTypePanel").parent().find(".ui-dialog-titlebar").css("background-color", "#ED7D31");
+      jQuery("#selectContactDataTypePanel").parent().find(".ui-dialog-titlebar").css("color", "#FFFFFF");
+      jQuery("#selectContactDataTypePanel").parent().find(".ui-dialog-titlebar").css("font", "bold normal 16px Calibri, sans-serif");
+
+      jQuery("#selectContactDataTypePanel").css("border: 1px solid #ED7D31");    
+      
+      jQuery("#selectContactDataTypePanel").dialog({
+          dialogClass: "editContactDialog",
+          title: "Contact Information Type",
+          modal: true,
+          height: 600,
+          width: 300,
+          position: {my: "left bottom", at: "left top", of: $("#editContactDialog").parent().find("button:first-child")},
+          autoOpen: true,
+          resizable: false,
+          draggable: false,
+          closeOnEscape: true,
+          show: {effect: "slide", direction: "down"},
+          hide: {effect: "slide", direction: "down"},
+          buttons:
+          {
+              "Add" : function()
+              {
+                  var selectedVal = "";
+                  var selected = jQuery("input[type='radio'][name='contactDataType']:checked");
+                  if (selected != null && selected.length > 0)
+                  {
+                      selectedVal = selected.val();
+                      
+                      addContactDataType(selectedVal);
+                      
+                      jQuery("#selectContactDataTypePanel").dialog("close");
+                  }
+              },
+              "Cancel" : function()
+              { 
+                  jQuery("#selectContactDataTypePanel").dialog("close");
+              }
+          }            
+      });    
+  }
+  
+  addContactDataType = function(dataType)
+  {
+      var contactSection = null;
+      
+      //alert(contactData.contactDetails[i].detailKeyName);
+      if (dataType == "ANNIVERSARY"
+      || dataType == "BIRTHDAY"
+      || dataType == "CHILDRENS_NAMES"              
+      || dataType == "EMAIL"
+      || dataType == "FILE_AS_NAME"
+      || dataType == "HOME_ADDRESS"              
+      || dataType == "HOME_PHONE_NUMBER"              
+      || dataType == "MOBILE_PHONE_NUMBER"
+      || dataType == "NICKNAME"
+      || dataType == "NOTES"              
+      || dataType == "SPOUSE_NAME")
+      {              
+      	contactSection = jQuery("#contactSectionPersonalTblBdy");
+      }
+      else if (dataType == "ASSISTANT_PHONE_NUMBER"
+           || dataType == "COMPANY_NAME"
+           || dataType == "JOB_TITLE"
+           || dataType == "WORK_ADDRESS"                   
+           || dataType == "WORK_EMAIL"
+           || dataType == "WORK_PHONE_NUMBER")
+      {
+        contactSection = jQuery("#contactSectionWorkTblBdy");
+      }
+      else
+      {
+        contactSection = jQuery("#contactSectionMediaTblBdy");                  
+      }
+
+      var label = document.getElementById("input" + dataType).nextSibling.nodeValue;
+      var newRow = jQuery(document.createElement("tr"));
+      contactSection.append(newRow);
+      
+      var newCell = jQuery(document.createElement("td"));
+      newRow.append(newCell);
+      newCell.css("font", "bold normal 14px Calibri, sans-serif");
+      newCell.css("color", "#555555");
+      newCell.html(jQuery(document.createTextNode(label + ": ")));
+
+      var newCell2 = jQuery(document.createElement("td"));
+      newRow.append(newCell2);
+      var newAnchor = jQuery(document.createElement("a"));
+      newCell2.append(newAnchor);
+      newAnchor.attr("id", "editContactElem" + generateUUID);
+      newAnchor.css("font", "bold normal 14px Calibri, sans-serif");
+      newAnchor.css("color", "#1C68AC");
+      newAnchor.data("contactkeyname", dataType);
+      newAnchor.data("emptytext", emptyFieldLabel);
+      newAnchor.href = "#";
+        
+      if (dataType == "BLOG_PAGE"
+      || dataType == "COMPANY_NAME"
+      || dataType == "FACEBOOK_PAGE"
+      || dataType == "FILE_AS_NAME"
+      || dataType == "HOME_PHONE_NUMBER"
+      || dataType == "JOB_TITLE"
+      || dataType == "NICKNAME"
+      || dataType == "OTHER_IM"
+      || dataType == "QQ_ADDRESS"
+      || dataType == "SKYPE"
+      || dataType == "SPOUSE_NAME"
+      || dataType == "WEB_SITE_URL"
+      || dataType == "WECHAT"
+      || dataType == "WHATSAPP")
+      {
+	      newAnchor.data("type", "text");
+      }
+      else if (dataType == "EMAIL"
+          || dataType == "WORK_EMAIL")
+      {
+	      newAnchor.data("type", "text");               
+      }
+      else if (dataType == "ASSISTANT_PHONE_NUMBER"
+          || dataType == "HOME_PHONE_NUMBER"
+          || dataType == "MOBILE_PHONE_NUMBER"
+          || dataType == "WORK_PHONE_NUMBER")
+      {
+	      newAnchor.data("type", "tel");               
+      }               
+      else if (dataType == "ANNIVERSARY"
+            || dataType == "BIRTHDAY")
+      {
+	      newAnchor.data("type", "combodate");
+	      newAnchor.data("combodate", '{"minYear":' + "'1900'}");
+	      newAnchor.data("template", "MMM-D-YYYY");
+	      newAnchor.data("format", "MMM-D-YYYY");               
+      }
+      else if (dataType == "HOME_ADDRESS"
+          || dataType == "WORK_ADDRESS"
+          || dataType == "NOTES")
+    {
+	      newAnchor.data("type", "textarea");                
+    }            
+      
+    jQuery(newAnchor).editable();      
+  }
+  
+  addNewContact = function()
+  {
+      selectedContact = new Object();
+      editSelectedContact();   
+  }
+  
+  getContactDataFromForm = function()
+  {
+      var theContact = new Object();
+      
+      if (selectedContact != null)
+      {
+        // update the open contact
+        theContact.userContactId = selectedContact.userContactId;
+      }
+      else
+      {
+        // create new contact
+        theContact.userContactId = null;
+      }
+      
+      theContact.givenName = jQuery("#editGivenName").html();
+      theContact.middleName = jQuery("#editMiddleName").html();
+      
+      if (theContact.middleName == emptyFieldLabel)
+      {
+          theContact.middleName = "";
+      }
+      
+      theContact.familyName = jQuery("#editFamilyName").html();
+      
+      if (theContact.givenName == emptyFieldLabel || theContact.familyName == emptyFieldLabel)
+      {
+          // required fields not provided
+          // so error
+          
+          return null;
+      }      
+      
+      theContact.relationship = jQuery("#editRelationship").html();
+
+      if (theContact.relationship == emptyFieldLabel)
+      {
+          theContact.relationship = "";
+      }
+      
+      theContact.contactPicture = jQuery("#editContactCardPic").attr("src");
+      
+      if (!theContact.contactPicture.startsWith("data:image/"))
+      {
+          theContact.contactPicture = "";
+      }
+      
+      theContact.contactDetails = new Array();
+      
+      var contactData = jQuery("#contactData");
+      
+      jQuery(contactData).find('a').each(function()
+      {
+          //alert(jQuery(this).data('contactkeyname') + ": " + jQuery(this).html());
+           var fieldValue = jQuery(this).html();
+           
+          if (fieldValue != emptyFieldLabel)
+          {
+            var contactDetail = new Object();
+            contactDetail.dataType = jQuery(this).data('contactkeyname')
+            contactDetail.value = jQuery(this).html();
+            theContact.contactDetails.push(contactDetail);
+          }
+      });
+      
+      //alert(JSON.stringify(theContact));
+      
+      return theContact;
+  }
+  
+  confirmContactDeletion = function()
+  {
+    var msgContent = "Are you sure you want to delete this contact?";
+
+    var confirmDeleteDiv = document.createElement("div");
+    $("body").append(confirmDeleteDiv);
+    confirmDeleteDiv.id = "confirmDeleteDiv";
+
+    $("#confirmDeleteDiv").html('<div><h4>' + msgContent + '</h4></div>').dialog(
+    {
+        modal : true,
+        title : 'Confirm Contact Deletion',
+        autoOpen : true,
+        width : 'auto',
+        resizable : false,
+        buttons :
+        {
+            "Yes" : function()
+            {
+                deleteContact();
+                selectedContact = null; 
+                $("#editContactDialog").dialog("close");
+                
+                var contactsObj = document.querySelector('friday-contacts');
+                contactsObj.refreshContacts();               
+                
+                $(this).dialog("close");
+            },
+            "No" : function()
+            {
+                $(this).dialog("close");
+            }
+        },
+        close : function(event, ui)
+        {
+            $("#confirmDeleteDiv").parent().prev().removeClass('overlay-hidden');
+            $(this).remove();
+        }
+    });  
+  }
+  
+  deleteContact = function()
+  {
+    showSpinner();
+      
+    var postData = JSON.stringify(getContactDataFromForm());
+    var token = jQuery("meta[name='_csrf']").attr("content");      
+    var header = jQuery("meta[name='_csrf_header']").attr("content");
+    
+    var submitStatus = "PENDING";
+    
+    var deleteUrl = getBaseLocation() + "/deleteContact";
+
+    $.ajax(
+    {
+        beforeSend: function (request)
+        {
+            request.setRequestHeader("_csrf_parameter", "_csrf");
+            request.setRequestHeader("_csrf", token);
+            request.setRequestHeader("_csrf_header", header);
+            request.setRequestHeader(header, token);
+        },        
+        type : "POST",
+        url : deleteUrl,
+        contentType : "application/json; charset=utf-8",
+        dataType : "text",
+        data: postData,
+        async : false,
+        success : function(data)
+        {
+            submitStatus = data;
+            
+            if (submitStatus != "OK")
+            {
+                hideSpinner();
+                showAlert("MyFriday Error", submitStatus);                
+            }
+            
+            var contactsObj = document.querySelector('friday-contacts');
+            contactsObj.refreshContacts();            
+        },
+        error : function(jqXHR, textStatus, errorThrown)
+        {
+            hideSpinner();
+            showAlert("MyFriday Error", errorThrown);
+            var contactsObj = document.querySelector('friday-contacts');
+            contactsObj.refreshContacts();
+        }
+    });
+
+    // reset the open contact variable
+    selectedContact = null;  
+  }
+  
+  searchContacts = function()
+  {
+      var searchTerm = jQuery("#searchTerm").val().toLowerCase();
+      
+      if ((searchTerm == null
+            	|| searchTerm.length < 2)
+            	&& contacts != null
+            	&& contacts.length > 0)
+      {
+          for (var i = 0; i < contacts.length; i++)
+          {
+              var contactRow = jQuery("#contact_" + i);
+              contactRow.css("display", "table-row");
+          }
+          
+          return;
+      }
+      
+      
+      if (searchTerm != null
+      	&& searchTerm.length >= 2
+      	&& contacts != null
+      	&& contacts.length > 0)
+      {
+        for (var i = 0; i < contacts.length; i++)
+        {
+            var showContact = false;
+            
+            if ((contacts[i].givenName != null && contacts[i].givenName.toLowerCase().indexOf(searchTerm) >= 0)
+            	|| (contacts[i].middleName != null && contacts[i].middleName.toLowerCase().indexOf(searchTerm) >= 0)
+            	|| (contacts[i].familyName != null && contacts[i].familyName.toLowerCase().indexOf(searchTerm) >= 0))
+            {
+                showContact = true;
+            }
+            
+            var contactRow = jQuery("#contact_" + i);
+            
+            if (!showContact)
+            {
+                contactRow.css("display", "none");
+            }
+            else
+            {
+                contactRow.css("display", "table-row");
+            }
+        }
+      }
+  }
+</script>
+        
+</dom-module>

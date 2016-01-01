@@ -1,0 +1,81 @@
+<link rel="import" href="../js/bower_components/polymer/polymer.html">
+
+<link rel="import" href="../js/bower_components/iron-menu-behavior/iron-menu-behavior.html">
+<link rel="import" href="../js/bower_components/paper-styles/paper-styles.html">
+
+<link rel="import" href="../js/bower_components/iron-behaviors/iron-control-state.html">
+<link rel="import" href="../js/bower_components/iron-collapse/iron-collapse.html">
+<link rel="import" href="../js/bower_components/paper-styles/paper-styles.html">
+      
+<dom-module id="friday-banner-menu">
+  <style>
+    .menu-trigger
+    {
+      text-align: right;
+      align: right;
+    }
+  </style>
+  <template>
+    <paper-menu class="bannerMenu" id="bannerMenu" style="cursor: pointer">
+      <paper-submenu id="bannerSubmenu">
+        <paper-item id="bannerMenuTrigger" class="menu-trigger bannerMenuTriggerItem" style="cursor: pointer; padding-right: 10px; padding-top: 14px;display: block; valign: center; text-align: right; font: bold normal 20px Calibri, sans-serif;"></paper-item>
+        <paper-menu class="menu-content">
+          <paper-item class="bannerMenuItem" id="changeProfile"  on-tap="_onTap">Change My Profile</paper-item>
+          <paper-item class="bannerMenuItem" id="changePreferences" on-tap="_onTap">Change My Preferences</paper-item>
+          <paper-item class="bannerMenuItem"><a class="flex" style="text-align: left; text-decoration: none; color: #FFFFFF; background-color: #5B9BD5; font: bold normal 18px Calibri, sans-serif;" href='/logout'>Logout</a></paper-item>
+        </paper-menu>
+      </paper-submenu>
+    </paper-menu>
+  </template>
+  <script>
+    Polymer({
+      is: 'friday-banner-menu',
+      properties:
+      {
+          firstName:
+          {
+              type: String
+          },
+          lastName:
+          {
+              type: String
+          }          
+      },
+      setUser : function(user)
+      {
+          firstName = user.firstName;
+          
+          // can't seem to get the data binding to work
+          //this.notifyPath('firstName', firstName);
+          
+          lastName = user.lastName;
+          //this.notifyPath('lastName', lastName);
+          
+          var bannerMenuTrigger = document.querySelector("#bannerMenuTrigger");
+          bannerMenuTrigger.innerHTML = firstName + " " + lastName;
+      },
+      _onTap: function() {
+          if (this.disabled)
+            return;
+
+          event.stopPropagation();
+          this.$.bannerSubmenu.close();
+          
+          var polyEvent = Polymer.dom(event);
+          
+          if (polyEvent.rootTarget.id == "changeProfile")
+          {
+              openProfileDialog();
+          }
+          else if (polyEvent.rootTarget.id == "changePreferences")
+          {
+              openPreferencesDialog();
+          }
+          else if (polyEvent.rootTarget.id == "logout")
+          {
+              logout();
+          }          
+        },     
+    });
+  </script>
+</dom-module>

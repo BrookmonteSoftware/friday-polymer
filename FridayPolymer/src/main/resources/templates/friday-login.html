@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+  xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+
+<script>
+//<![CDATA[
+var cotJsHost = ((window.location.protocol == "https:") ? "https://secure.comodo.com/" : "http://www.trustlogo.com/");
+document.write(unescape("%3Cscript src='" + cotJsHost + "trustlogo/javascript/cot.js' type='text/javascript'%3E%3C/script%3E"));
+//]]>
+</script>
+
+<head>
+  <meta charset="utf-8"></meta>
+  <meta name="description" content="My Friday"></meta>
+  <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+  <meta http-equiv="Cache-control" content="no-cache"></meta>
+  <meta http-equiv="PRAGMA" CONTENT="NO-CACHE"></meta> 
+  
+  <!-- CSRF headers -->
+  <meta name="_csrf_parameter" content="_csrf"></meta>
+  <meta name="_csrf" th:content="${_csrf.token}"></meta>
+  <meta name="_csrf_header" th:content="${_csrf.headerName}"></meta>
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="/styles/main.css" th:href="@{/styles/main.css}"></link>
+</head>
+
+<body>
+<div id="login-header">
+    <table>
+      <tr>
+        <td class="loginBannerLogo">My Friday</td>
+        <td class="loginBannerSlogan">Life is better on Friday!</td>
+      </tr>
+      </table>
+      <table style="width:100%">
+      <tr>
+        <td style="width:50%;">
+          <div class="loginPanel" style="margin-right:10px">
+          </div>
+        </td>
+        <td style="width:50%;">
+          <div class="loginPanel">
+            <div class="loginTitle">Log in to My Friday</div>
+            <br />
+            <div class="noerrors">
+              <p>&nbsp;</p>
+            </div>
+            <br />
+            <form name="f" th:action="@{/login}" method="POST">
+          
+              <div>
+                <span class="loginLabel">Email</span>
+                <input
+                  id="username" type='text' name='username' style="width: 250px"
+                  title="Enter the email address you used to create your My Friday account" />
+              </div>
+              <br />
+              <div>
+                <span class="loginLabel">Password</span>
+                <input
+                  id="password" type='password' name='password' style="width: 250px"
+                  title="Enter your My Friday account password" />
+              </div>
+              <br />
+              <div style="text-align: center">
+                <a title="Reset your password if it has been forgetten or compromised" class="loginForgotPassword" href="forgotPassword">Reset my password</a>
+              </div>
+              <br />
+              <br />
+              <br />              
+              <div class="submit" style="text-align: center">
+                <input id="proceed" type="submit" style="cursor: pointer;" value="Login" />
+              </div>              
+              <br />
+              <div style="text-align: center">
+                <input class="loginCheckbox" type="checkbox" checked="checked" /><span class="loginCheckBoxValue"> Keep me logged in</span>
+              </div>
+              <br />
+              <br />
+              <div style="text-align: center">
+                <a title="Click here to create an account on My Friday!" class="loginSignup" onclick="javascript:launchSignup();" href="javascript:void(null);">Not using My Friday yet? Sign up. It's free!</a>
+              </div>
+              <br />
+              <br />
+              <div style="text-align: left">
+                <a class="loginContact" onclick="javascript:showContactInfo();" href="javascript:void(null);">Problems logging in? Contact us.</a>
+              </div>               
+            </form>
+          </div>
+        </td>
+      </tr>
+    </table>
+    <div class="loginFooter" id="login-footer">
+
+      <table class="fridayTour">
+        <tbody style="margin: 0px; padding: 0px;">
+          <tr style="margin: 0px; padding: 0px;">
+            <td style="margin: 0px; padding: 0px;">
+                <img src="/images/Brookmonte-AMC.png" style="position: absolute; top: 0px; padding: 0px; height: 76px; margin-top: 0px; margin-left: -10px"/>
+            </td>          
+            <td style="text-align: center;"><nobr>
+                <span class="fridayVersion" id="fridayVersion">Friday Polymer 0.0.1.BUILD-SNAPSHOT</span>
+              </nobr></td>
+            <td style="width: 80%; text-align: center">
+              <a href="http://instantssl.com/ssl.html" style="position: relative; left: 350px; text-decoration: none;">
+              <img alt="SSL"
+                src="https://www.instantssl.com/ssl-certificate-images/support/comodo_secure_100x85_transp.png"
+                style="border: 0px; width: 60px; height: 40px;"></img>
+                <span
+                style="font-weight: bold; font-size: 18px; color: white; position: relative; top: -10px;">SSL</span>
+            </a></td>
+            <td style="width: 400px; min-width: 400px; max-width: 400px;">
+              <div class="fridayCopyright" id="fridayCopyright">My
+                Friday is copyright &copy; 2015, The Brookmonte Group. All rights
+                reserved.</div>
+            </td>
+            <td>
+              <span id="cdSiteSeal1">
+              <script
+                    type="text/javascript"
+                    src="//tracedseals.starfieldtech.com/siteseal/get?scriptId=cdSiteSeal1&amp;cdSealType=Seal1&amp;sealId=55e4ye7y7mb73695d8ee7cbe0d8e1bx4794y7mb7355e4ye792e330a5857e21a0">
+              </script>
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+  
+  <a href="http://www.instantssl.com" id="comodoTL">SSL Certificate Authority</a>
+  <script type="text/javascript">
+    COT("https://www.myfriday.info/images/cot.gif", "SC2", "none");
+  </script>
+
+</body>
+</html>

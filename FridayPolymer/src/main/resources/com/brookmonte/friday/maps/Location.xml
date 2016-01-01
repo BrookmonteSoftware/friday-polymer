@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2010 The myBatis Team Licensed under the Apache License, Version 
+	2.0 (the "License"); you may not use this file except in compliance with 
+	the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 
+	Unless required by applicable law or agreed to in writing, software distributed 
+	under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES 
+	OR CONDITIONS OF ANY KIND, either express or implied. See the License for 
+	the specific language governing permissions and limitations under the License. -->
+
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+    
+<mapper namespace="com.brookmonte.friday.dao.location.LocationDao">
+
+	<resultMap id="countryResultMap" type="FridayCountry">
+		<result property="countryId" column="COUNTRY_ID" />
+		<result property="shortNameEnglish" column="SHORTNAME_ENGLISH" />
+		<result property="longNameEnglish" column="LONGNAME_ENGLISH" />
+		<result property="shortNameLocal" column="SHORTNAME_LOCAL" />
+		<result property="longNameLocal" column="LONGNAME_LOCAL" />
+		<result property="countryCode2" column="COUNTRY_CODE2" />
+		<result property="countryCode3" column="COUNTRY_CODE3" />
+		<result property="phoneCallingCode" column="PHONE_CALLING_CODE" />
+		<result property="numericCode" column="NUMERIC_CODE" />
+	</resultMap>
+	
+	<select id="getCountryByCountryCode2" parameterType="java.lang.String" resultMap="countryResultMap">
+	    SELECT
+		    FRIDAY_COUNTRY.COUNTRY_ID 			AS COUNTRY_ID,
+		    FRIDAY_COUNTRY.SHORTNAME_ENGLISH 	AS SHORTNAME_ENGLISH,
+		    FRIDAY_COUNTRY.LONGNAME_ENGLISH		AS LONGNAME_ENGLISH,
+		    FRIDAY_COUNTRY.SHORTNAME_LOCAL		AS SHORTNAME_LOCAL,
+		    FRIDAY_COUNTRY.LONGNAME_LOCAL		AS LONGNAME_LOCAL,
+		    FRIDAY_COUNTRY.COUNTRY_CODE2		AS COUNTRY_CODE2,
+		    FRIDAY_COUNTRY.COUNTRY_CODE3		AS COUNTRY_CODE3,
+		    FRIDAY_COUNTRY.PHONE_CALLING_CODE	AS PHONE_CALLING_CODE,
+		    FRIDAY_COUNTRY.NUMERIC_CODE			AS NUMERIC_CODE
+	    FROM friday.FRIDAY_COUNTRY
+	    WHERE FRIDAY_COUNTRY.COUNTRY_CODE2 = #{countryCode2}	
+	</select>
+
+</mapper>

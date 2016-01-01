@@ -1,0 +1,625 @@
+  <!-- Stylesheets -->
+  
+  <!-- Non-Polymer JS libraries -->  
+  <script src="../js/bower_components/moment/moment.js" th:src="@{../js/bower_components/moment/moment.js}"></script>
+
+
+  <!-- Friday application JS libraries -->
+  
+  <!-- POLYMER ELEMENTS -->
+  <link rel="import" href="../js/bower_components/polymer/polymer.html">
+  
+  <!-- IRON -->
+  <link rel="import" href="../js/bower_components/iron-resizable-behavior/iron-resizable-behavior.html" th:href="@{../js/bower_components/iron-resizable-behavior/iron-resizable-behavior.html}">
+  
+  <!-- PAPER -->
+  
+  <!-- GOOGLE -->
+  <link rel="import" href="../js/bower_components/google-apis/google-apis.html" th:href="@{../js/bower_components/google-apis/google-apis.html}">
+  <link rel="import" href="../js/bower_components/google-map/google-map.html" th:href="@{../js/bower_components/google-map/google-map.html}">
+
+  <!-- FRIDAY ELEMENTS -->
+
+<dom-module id="friday-bing-traffic-incidents">
+
+<template>
+
+<div id="trafficIncidentDiv">
+  <div id="trafficIncidentsContainer">
+      <div id="trafficPanelHeader">
+        <span style="position: relative; top: 4px;">Traffic Incidents</span><span id="incidentUpdateTime" style="color: #AAAAAA; margin-left: 10px; font: bold italic 10px Calibri, sans-serif; position: relative; top: 4px;"></span>
+        <span id="trafficTime"></span>
+      </div>
+      <div id="trafficIncidentsInnerContainer" style="overflow: hidden; height: 100px;">
+        <div id="trafficIncidents" style="position: relative; z-index: 3; height: 90px; overflow:auto">
+        </div>
+      </div>
+      </div>
+  </div>
+</div>
+
+
+<iron-ajax id="bingtrafficajax" url="" handle-as="json" on-response="hresponse" debounce-duration="300">
+</iron-ajax>
+  
+</template>
+
+<script>
+  var _this = null;
+  
+  var traffic = null;
+  var gettingTraffic = false;
+  var trafficMapMarkers = [];
+  
+  var googlemap = null;
+  var nelatBounds = 0;
+  var swlonBounds = 0;
+  var swlatBounds = 0;
+  var nelonBounds = 0;
+  
+  Polymer(
+  {
+      is : 'friday-bing-traffic-incidents',
+      behaviors : [ Polymer.IronResizableBehavior ],
+      getTraffic : function()
+      {
+          // expand the traffic incident search area
+          nelatBounds = this.nelat + 0.5;
+          swlonBounds = this.swlon - 0.5;
+          swlatBounds = this.swlat - 0.5;
+          nelonBounds = this.nelon + 0.5;
+          
+          var trafficAlertUrl = "?nLat=";
+          trafficAlertUrl += nelatBounds;
+          trafficAlertUrl += "&wLon=";
+          trafficAlertUrl += swlonBounds;
+          trafficAlertUrl += "&sLat=";
+          trafficAlertUrl += swlatBounds;
+          trafficAlertUrl += "&eLon=";
+          trafficAlertUrl += nelonBounds;          
+          
+          // Bing Traffic API request has to be proxied
+          this.$.bingtrafficajax.url = getBaseLocation() + "/getTrafficAlerts" + trafficAlertUrl;          
+          this.$.bingtrafficajax.generateRequest();
+      },
+      hresponse : function(request)
+      {
+          traffic = this.$.bingtrafficajax.lastResponse;
+          
+          this.fire('traffic-changed',
+          {
+              trafficChanged : true
+          });
+      },
+      attached : function()
+      {
+          _this = this;
+          
+          this.async(this.notifyResize, 1);
+          window.setInterval(this.refreshTraffic, 1000 * 60 * this.refreshinterval);
+      },
+      listeners :
+      {
+          'iron-resize'		: '_onIronResize',
+          'nelat-changed'	: '_onLocationChange',
+          'nelon-changed'	: '_onLocationChange',
+          'swlat-changed'	: '_onLocationChange',
+          'swlon-changed'	: '_onLocationChange',
+          'mapzoom-changed' : '_onZoomChange',
+          'traffic-changed' : '_onTrafficChange'
+      },
+      properties :
+      {
+          nelat :
+          {
+              type : String,
+              notify : true,
+              reflectToAttribute : true
+          },
+          nelon :
+          {
+              type : String,
+              notify : true,
+              reflectToAttribute : true
+          },
+          swlat :
+          {
+              type : String,
+              notify : true,
+              reflectToAttribute : true
+          },
+          swlon :
+          {
+              type : String,
+              notify : true,
+              reflectToAttribute : true
+          },
+          mapzoom :
+          {
+              type : Number,
+              notify : true,
+              reflectToAttribute : true              
+          },
+          refreshinterval :
+          {
+              value : 5, // default refresh interval is 5 minutes
+              type : String,
+              notify : true,
+              reflectToAttribute : true
+          }
+      },
+      _onIronResize : function()
+      {
+          var infoCard = jQuery("#infoCard");
+          var cardHeight = infoCard.height();
+
+          var trafficPanel = jQuery("#trafficPanel");
+          trafficPanel.height(cardHeight - 82);
+          
+          var trafficBkgd = jQuery("#trafficBkgd");
+          trafficBkgd.height(cardHeight - 84);
+          
+          var trafficIncidentsInnerContainer = jQuery("#trafficIncidentsInnerContainer");
+          trafficIncidentsInnerContainer.height(cardHeight - 260);
+          
+          var trafficIncidentsDiv = jQuery("#trafficIncidents");
+          trafficIncidentsDiv.height(cardHeight - 270);          
+      },
+      _onLocationChange : function()
+      {
+          if (!gettingTraffic
+                  && (this.nelat != null && typeof this.nelat != "undefined")
+                  && (this.nelon != null && typeof this.nelon != "undefined")
+                  && (this.swlat != null && typeof this.swlat != "undefined")
+                  && (this.swlon != null && typeof this.swlon != "undefined"))
+          {
+              // has the bounding area changed enough to need to 
+              // get traffic again?
+
+          	  if (this.nelat > nelatBounds
+          	  || this.swlon < swlonBounds
+          	  || this.swlat < swlatBounds
+          	  || this.nelon > nelonBounds)
+              { 
+              	gettingTraffic = true;
+              	this.getTraffic();
+              }
+          }
+      },
+      _onZoomChange : function()
+      {
+          if (!gettingTraffic
+                  && (this.nelat != null && typeof this.nelat != "undefined")
+                  && (this.nelon != null && typeof this.nelon != "undefined")
+                  && (this.swlat != null && typeof this.swlat != "undefined")
+                  && (this.swlon != null && typeof this.swlon != "undefined"))
+          {             
+              gettingTraffic = true;
+              this.getTraffic();
+          }          
+      },
+      _onTrafficChange : function()
+      {
+          this.updateTrafficDisplay();
+
+          // after everything is received, parsed, and UI built,
+          // new requests to get traffic data can be accepted
+          gettingTraffic = false;          
+      },
+      
+      refreshTraffic : function()
+      {
+          gettingTraffic = true;
+          var trafficIncidentsObj = document.querySelector('friday-bing-traffic-incidents');
+          trafficIncidentsObj.getTraffic();
+      },
+      
+      updateTrafficDisplay : function()
+      {
+    	//alert(traffic.resourceSets[0].resources.length);
+    	var fridaymap = document.querySelector('#googleMap');
+        googlemap = fridaymap.map;
+        
+    	var incidents = traffic.resourceSets[0].resources;
+    	
+    	sortBy(incidents, { prop: "severity" });
+    	
+    	// trafficIncidents is an application-global variable
+    	// holding all current traffic incidents
+    	trafficIncidents = incidents;
+    	
+    	this.buildTrafficAlertDisplay(incidents);
+      },
+
+      buildTrafficAlertDisplay : function(trafficIncidents)
+      {
+        var mapsAPI = document.querySelector('google-maps-api');
+        
+        jQuery("#" + "incidentUpdateTime").html("Last updated: " + moment().format("LTS"));
+        
+        // reset everything
+        this.destroyTrafficMarkers();
+        destroyAllTrafficIncidentDetails();
+        
+        var trafficDiv = document.getElementById("trafficIncidents");
+
+        var headerDiv = document.getElementById("trafficPanelHeader");    
+        
+        if (document.getElementById("powerdByBing") == null)
+        {
+          var logoImg = document.createElement("img");      
+          headerDiv.appendChild(logoImg);
+          logoImg.src = "http://dev.virtualearth.net/Branding/logo_powered_by.png";
+          logoImg.style.position = "relative";
+          logoImg.style.cssFloat = "right";
+          logoImg.style.height = "25px";
+          logoImg.style.width = "48px";
+          logoImg.style.zIndex = "4";
+          logoImg.style.border = "none";
+          logoImg.style.opacity = "1";
+          logoImg.style.backgroundColor = "white";
+      
+          var poweredBySpan = document.createElement("span");
+          headerDiv.appendChild(poweredBySpan);
+          
+          poweredBySpan.id = 'powerdByBing';
+          
+          poweredBySpan.style.position = "relative";
+          poweredBySpan.style.cssFloat = "right";
+          poweredBySpan.style.color = "white";
+          poweredBySpan.style.marginRight = "10px";
+          poweredBySpan.style.top = "6px"
+          poweredBySpan.style.font = "normal normal 12px Calibri, sans-serif";
+          
+          poweredBySpan.appendChild(document.createTextNode("Powered by "));
+        }
+        
+        var incidentCounter = 0;
+        
+        jQuery(trafficDiv).empty();
+        
+        if (trafficIncidents.length == 0)
+        {
+            var noIncidentsDiv = document.createElement("div");
+            trafficDiv.appendChild(noIncidentsDiv);
+            
+            noIncidentsDiv.appendChild(document.createTextNode("No traffic incidents reported"));
+        }
+        else
+        {
+            for ( var i = 0; i < trafficIncidents.length; i++)
+            {
+                if (trafficIncidents[i].type != 1 && trafficIncidents[i].type != 9)
+                {
+                 continue;
+                }
+                            
+                var incidentDiv = document.createElement("div");
+                trafficDiv.appendChild(incidentDiv);
+                
+                var incidentImg = document.createElement("img");
+                incidentDiv.appendChild(incidentImg);
+                incidentImg.style.cursor = "pointer";
+                incidentImg.id = "trafficIncidentImg_" + i;
+                incidentImg.details = "trafficIncident_" + i;
+                incidentImg.onclick = function(){openIncidentDetails(this);};
+
+                incidentImg.style.height = "16px";
+                incidentImg.style.width = "16px";
+                incidentImg.style.marginRight = "5px";
+                incidentImg.style.position = "relative";
+                incidentImg.style.zIndex = "3";
+
+                var incidentTitleSpan = document.createElement("span");
+                incidentDiv.appendChild(incidentTitleSpan);
+                
+                var imageHeight = 16;
+                var imageWidth = 16;
+                
+                if (trafficIncidents[i].type == 1) // accident
+                {
+                  imageHeight = 20;
+                  imageWidth = 20;              
+                  incidentImg.style.height = imageHeight + "px";
+                  incidentImg.style.width = imageWidth + "px";
+                }
+                
+                incidentTitleSpan.appendChild(document.createTextNode(trafficIncidents[i].description));
+                
+                if (trafficIncidents[i].severity == 1)
+                {
+                    if (trafficIncidents[i].type == 9)  // construction
+                    {
+                        incidentImg.src = getBaseLocation() + "/images/traffic-symbols/construction.png";
+                        incidentTitleSpan.className = "trafficIncidentTitle";
+                        
+                    }
+                    else if (trafficIncidents[i].type == 1) // accident
+                    {
+                        incidentImg.src = "/images/traffic-symbols/traffic-warning.png";
+                        incidentTitleSpan.className = "trafficIncidentTitle";
+                    }                
+                }
+                else if (trafficIncidents[i].severity == 2)
+                {
+                    if (trafficIncidents[i].type == 9)  // construction
+                    {
+                        incidentImg.src = "/images/traffic-symbols/construction.png";
+                        incidentTitleSpan.className = "trafficIncidentTitle";                    
+                        
+                    }
+                    else if (trafficIncidents[i].type == 1) // accident
+                    {
+                        incidentImg.src = "/images/traffic-symbols/traffic-warning.png";
+                        incidentTitleSpan.className = "trafficIncidentTitle";                    
+                    }                
+                }
+                else if (trafficIncidents[i].severity == 3)
+                {
+                    if (trafficIncidents[i].type == 9)  // construction
+                    {
+                        incidentImg.src = "/images/traffic-symbols/construction.png";
+                        incidentTitleSpan.className = "trafficIncidentTitle";                    
+                    }
+                    else if (trafficIncidents[i].type == 1) // accident
+                    {
+                        incidentImg.src = "/images/traffic-symbols/traffic-warning.png";
+                        incidentTitleSpan.className = "severeTrafficAccidentTitle";                    
+                    }                
+                }
+                else if (trafficIncidents[i].severity == 4)
+                {
+                    if (trafficIncidents[i].type == 9)  // construction
+                    {
+                        incidentImg.src = "/images/traffic-symbols/construction.png";
+                        incidentTitleSpan.className = "trafficIncidentTitle";
+                        
+                    }
+                    else if (trafficIncidents[i].type == 1) // accident
+                    {
+                        incidentImg.src = "/images/traffic-symbols/traffic-warning.png";
+                        incidentTitleSpan.className = "severeTrafficAccidentTitle";                    
+                    }                
+                }
+
+                // place map markers at incident locations
+                 var image =
+                 {
+                     url: incidentImg.src,
+                     size: new mapsAPI.api.Size(imageWidth, imageHeight),
+                     // The origin for this image is 0,0.
+                     origin: new mapsAPI.api.Point(0,0),
+                     // The anchor for this image is the base of the flagpole at 0,32.
+                     anchor: new mapsAPI.api.Point(0, 0)
+                   };
+                
+                // To add the marker to the map, use the 'map' property
+                var marker = new google.maps.Marker({
+                     position: new mapsAPI.api.LatLng(trafficIncidents[i].point.coordinates[0], trafficIncidents[i].point.coordinates[1]),
+                     title: trafficIncidents[i].description,
+                     icon: image,
+                     map: googlemap,
+                 });
+
+                           
+                trafficMapMarkers[incidentCounter] = marker;
+                incidentCounter++;         
+                
+                 mapsAPI.api.event.addListener(marker, 'click', (function(marker, i)
+                 {
+                  return function()
+                  {
+                    closeAllTrafficIncidentDetails();
+                    openIncidentDetailsById("trafficIncidentImg_" + i);
+                  }
+                 })(marker, i));            
+                
+                 var incidentDetailsDiv = document.createElement("div");
+                 incidentDiv.appendChild(incidentDetailsDiv);
+                 incidentDetailsDiv.id = "trafficIncident_" + i;
+                 incidentDetailsDiv.style.display = "none";
+                
+                 this.buildTrafficIncidentDetails(incidentDetailsDiv, trafficIncidents[i]);
+            }
+        }    
+      },
+      
+      buildTrafficIncidentDetails : function(detailsContainer, trafficIncident)
+      { 
+         var fullDescDiv = document.createElement("div");
+         detailsContainer.appendChild(fullDescDiv);
+         
+         fullDescDiv.appendChild(document.createTextNode(trafficIncident.description));
+         
+         var severityDiv = document.createElement("div");
+         detailsContainer.appendChild(severityDiv);
+         
+         if (trafficIncident.severity == 1)
+         {
+           if (trafficIncident.type == 1) // accident
+           {
+               severityDiv.appendChild(document.createTextNode("A minor accident has occurred."));
+           }
+           else if (trafficIncident.type == 9)  // construction
+           {
+              severityDiv.appendChild(document.createTextNode("Minor construction is taking place."));
+           }               
+         }
+         else if (trafficIncident.severity == 2)
+         {
+           if (trafficIncident.type == 1) // accident
+           {
+               severityDiv.appendChild(document.createTextNode("An accident has occurred."));            
+           }
+           else if (trafficIncident.type == 9)  // construction
+           {
+               severityDiv.appendChild(document.createTextNode("Moderate construction is taking place."));            
+           }                
+         }
+         else if (trafficIncident.severity == 3)
+         {
+           if (trafficIncident.type == 1) // accident
+           {
+               severityDiv.appendChild(document.createTextNode("A serious accident has occurred."));
+           }
+           else if (trafficIncident.type == 9)  // construction
+           {
+              severityDiv.appendChild(document.createTextNode("Major construction is taking place."));                    
+           }               
+         }
+         else if (trafficIncident.severity == 4)
+         {
+           if (trafficIncident.type == 1) // accident
+           {
+               severityDiv.appendChild(document.createTextNode("A very serious accident has occurred."));
+           }
+           else if (trafficIncident.type == 9)  // construction
+           {
+              severityDiv.appendChild(document.createTextNode("Very major construction is taking place."));            
+           }               
+         }
+
+         if (trafficIncident.lane != null && trafficIncident.lane.length > 0)
+         {
+           var laneImpactDiv = document.createElement("div");
+           detailsContainer.appendChild(laneImpactDiv);        
+           laneImpactDiv.appendChild(document.createTextNode(trafficIncident.lane));
+         }
+     },
+     
+     hideTrafficMarkers : function()
+     {
+       var mapsAPI = document.querySelector('google-maps-api');      
+         
+       for (var i = 0; i < trafficMapMarkers.length; i++)
+       {
+         trafficMapMarkers[i].setMap(null);
+       }  
+     },
+     
+     showTrafficMarkers : function()
+     {
+       var mapsAPI = document.querySelector('google-maps-api');      
+     
+       for (var i = 0; i < trafficMapMarkers.length; i++)
+       {
+         trafficMapMarkers[i].setMap(googlemap);
+       }  
+     },
+     
+     destroyTrafficMarkers : function()
+     {
+       this.hideTrafficMarkers();
+       trafficMapMarkers.length = 0;  
+     }
+      
+  });
+
+  openIncidentDetails = function(incidentImg)
+  {
+      var mapsAPI = document.querySelector('google-maps-api');      
+      
+      var detailsId = incidentImg.details;
+      
+      var currentlyOpen = false;
+          
+      // close all open dialogs
+      var trafficIncidentIndex = -1;
+      
+      for (var i = 0; i < trafficIncidents.length; i++)
+      {
+        if (("trafficIncident_" + i) == detailsId)
+        {
+          trafficIncidentIndex = i;
+        }
+               
+        if (jQuery("#" + "trafficIncident_" + i).hasClass("ui-dialog-content"))
+        {
+          if (("trafficIncident_" + i) == detailsId)
+          {
+            if (jQuery("#" + detailsId).dialog("isOpen"))
+            {
+              currentlyOpen = true;
+            }
+          }
+          jQuery("#" + "trafficIncident_" + i).dialog("close");
+        }
+      }
+      
+      // if the dialog is open, close it and don't re-open it
+      if (currentlyOpen)
+      {
+          jQuery("#" + detailsId).dialog("close");
+          return;
+      }
+      
+      closeAllTrafficIncidentDetails();
+      
+      jQuery("#" + detailsId).dialog({
+          modal: false,
+          title: 'Traffic Alert Details',
+          autoOpen: false,
+          width: 300,
+          resizable: false,
+          draggable: true,
+          position: {my: "center-158 center", at: "center center", of: document}
+      });
+
+      //$("#" + detailsId).parent().removeClass("ui-widget-content");
+
+      jQuery("#" + detailsId).parent().find(".ui-dialog-titlebar-close").css("color", "#6BABE5");
+      jQuery("#" + detailsId).parent().find(".ui-widget-header").removeClass("ui-widget-header");
+   
+      jQuery("#" + detailsId).parent().find(".ui-dialog-titlebar").css("background-color", "#6BABE5");
+      jQuery("#" + detailsId).parent().find(".ui-dialog-titlebar").css("color", "#FFFFFF");
+      jQuery("#" + detailsId).parent().find(".ui-dialog-titlebar").css("font", "bold normal 16px Calibri, sans-serif");
+
+      jQuery("#" + detailsId).css("border: 1px solid #6BABE5");
+      jQuery("#" + detailsId).parent().css("border", "1px solid #1E66A7");
+      
+      jQuery("#" + detailsId).dialog( "open" );
+      
+      jQuery("#" + detailsId).parent().find(".ui-dialog-titlebar-close").blur();  
+      
+      var incidentLatlng = new mapsAPI.api.LatLng(trafficIncidents[trafficIncidentIndex].point.coordinates[0],
+              trafficIncidents[trafficIncidentIndex].point.coordinates[1]);
+      
+      googlemap.setCenter(incidentLatlng);
+      
+      if (googlemap.getZoom() < 15)
+      {
+          googlemap.setZoom(15);
+      }
+  }  
+    
+  closeAllTrafficIncidentDetails = function()
+  {
+      // close all open dialogs
+      for ( var i = 0; i < trafficIncidents.length; i++)
+      {
+          if (jQuery("#" + "trafficIncident_" + i).hasClass("ui-dialog-content"))
+          {          
+              jQuery("#" + "trafficIncident_" + i).dialog("close");
+          }
+      }    
+  }
+  
+  destroyAllTrafficIncidentDetails = function()
+  {
+      for ( var i = 0; i < trafficIncidents.length; i++)
+      {
+          if (jQuery("#" + "trafficIncident_" + i).hasClass("ui-dialog-content"))
+          {          
+              jQuery("#" + "trafficIncident_" + i).dialog('destroy').remove();
+          }
+      }
+  }
+  
+  openIncidentDetailsById = function(incidentImgId)
+  {
+    var incidentImg = document.getElementById(incidentImgId);  
+    openIncidentDetails(incidentImg);
+  }
+</script>
+        
+</dom-module>

@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2010 The myBatis Team Licensed under the Apache License, Version 
+	2.0 (the "License"); you may not use this file except in compliance with 
+	the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 
+	Unless required by applicable law or agreed to in writing, software distributed 
+	under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES 
+	OR CONDITIONS OF ANY KIND, either express or implied. See the License for 
+	the specific language governing permissions and limitations under the License. -->
+
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+    
+<mapper namespace="com.brookmonte.friday.dao.contacts.ContactsDao">
+
+	<resultMap id="contactResultMap" type="FridayUserContact">
+		<result property="userContactId" column="USER_CONTACT_ID" />
+		<result property="userId" column="USER_ID" />
+		<result property="fridayUserId" column="FRIDAY_USER_ID" />
+		<result property="familyName" column="FAMILY_NAME" />
+		<result property="givenName" column="GIVEN_NAME" />
+		<result property="middleName" column="MIDDLE_NAME" />
+		<result property="gender" column="GENDER" />
+		<result property="relationship" column="RELATIONSHIP" />
+		<result property="relationshipStrength" column="RELATIONSHIP_STRENGTH" />
+		<result property="contactPicture" column="CONTACT_PICTURE"  jdbcType="BLOB" />
+	    <collection property="contactDetails" javaType="ArrayList" column="USER_CONTACT_ID" ofType="FridayUserContactDetails" select="selectContactDetailsForUserContact"/>
+	</resultMap>
+
+    <resultMap id="contactKeyTypeResultMap" type="FridayContactKeyType">
+        <result property="detailKeyId" column="DETAIL_KEY_ID" />
+        <result property="detailKeyName" column="DETAIL_KEY_NAME" />
+        <result property="detailKeyDisplayName" column="DETAIL_KEY_DISPLAY_NAME" />
+    </resultMap>
+
+	<select id="getUserContactsByUserId" parameterType="java.lang.String" resultMap="contactResultMap">
+		select
+			c.USER_CONTACT_ID				AS USER_CONTACT_ID,
+			c.USER_ID						AS USER_ID,
+			c.FRIDAY_USER_ID				AS FRIDAY_USER_ID,
+			c.FAMILY_NAME					AS FAMILY_NAME,
+			c.GIVEN_NAME					AS GIVEN_NAME,
+			c.MIDDLE_NAME					AS MIDDLE_NAME,
+			c.GENDER						AS GENDER,
+			
+			(select fcrt.RELATIONSHIP_TYPE
+				from friday.FRIDAY_CONTACT_RELATIONSHIP_TYPE fcrt
+				where fcrt.RELATIONSHIP_TYPE_ID = c.RELATIONSHIP_TYPE_ID)
+											AS RELATIONSHIP,
+											
+			c.RELATIONSHIP_STRENGTH			AS RELATIONSHIP_STRENGTH,
+			c.CONTACT_PICTURE				AS CONTACT_PICTURE 
+		from friday.FRIDAY_USER_CONTACT c
+		where c.USER_ID = #{userId}
+		order by c.FAMILY_NAME asc
+	 </select>
+
+	<select id="getUserContactByUserContactId" parameterType="java.lang.String" resultMap="contactResultMap">
+		select
+			c.USER_CONTACT_ID				AS USER_CONTACT_ID,
+			c.USER_ID						AS USER_ID,
+			c.FRIDAY_USER_ID				AS FRIDAY_USER_ID,
+			c.FAMILY_NAME					AS FAMILY_NAME,
+			c.GIVEN_NAME					AS GIVEN_NAME,
+			c.MIDDLE_NAME					AS MIDDLE_NAME,
+			c.GENDER						AS GENDER,
+			
+			(select fcrt.RELATIONSHIP_TYPE
+				from friday.FRIDAY_CONTACT_RELATIONSHIP_TYPE fcrt
+				where fcrt.RELATIONSHIP_TYPE_ID = c.RELATIONSHIP_TYPE_ID)
+											AS RELATIONSHIP,
+											
+			c.RELATIONSHIP_STRENGTH			AS RELATIONSHIP_STRENGTH,
+			c.CONTACT_PICTURE				AS CONTACT_PICTURE
+		from friday.FRIDAY_USER_CONTACT c
+		where c.USER_CONTACT_ID = #{userContactId}
+		order by c.FAMILY_NAME asc
+	 </select>
+	 
+	<select id="selectContactDetailsForUserContact" resultType="FridayUserContactDetails">
+		select
+			fcd.CONTACT_DETAILS_ID		AS contactDetailsId,
+			fcd.USER_CONTACT_ID			AS userContactId,
+			
+			(select fckt.DETAIL_KEY_NAME
+				from friday.FRIDAY_CONTACT_KEY_TYPES fckt
+				where fckt.DETAIL_KEY_ID = fcd.DETAIL_KEY_ID)
+										AS detailKeyName,
+										
+			(select fckt.DETAIL_KEY_DISPLAY_NAME
+				from friday.FRIDAY_CONTACT_KEY_TYPES fckt
+				where fckt.DETAIL_KEY_ID = fcd.DETAIL_KEY_ID)
+										AS detailKeyDisplayName,													
+			
+			fcd.DETAIL_KEY_VALUE		AS detailKeyValue
+		from friday.FRIDAY_USER_CONTACT_DETAILS fcd
+		where fcd.USER_CONTACT_ID = #{userContactId}
+	</select>
+
+	<insert id="insertContact">
+		INSERT INTO friday.FRIDAY_USER_CONTACT
+		(USER_CONTACT_ID,
+		USER_ID,
+		FRIDAY_USER_ID,
+		FAMILY_NAME,
+		GIVEN_NAME,
+		MIDDLE_NAME,
+		GENDER,
+		RELATIONSHIP_TYPE_ID,
+		RELATIONSHIP_STRENGTH,
+		CONTACT_PICTURE)
+		VALUES
+		(#{userContactId},
+		#{userId},
+		#{fridayUserId},
+		#{familyName},
+		#{givenName},
+		#{middleName},
+		#{gender},
+		(SELECT RELATIONSHIP_TYPE_ID FROM friday.FRIDAY_CONTACT_RELATIONSHIP_TYPE WHERE RELATIONSHIP_TYPE=#{relationship}),
+		#{relationshipStrength},
+		#{contactPicture})
+	</insert>
+	
+	<update id="updateContact">
+		UPDATE friday.FRIDAY_USER_CONTACT
+		SET
+		USER_ID = #{userId},
+		FRIDAY_USER_ID = #{fridayUserId},
+		FAMILY_NAME = #{familyName},
+		GIVEN_NAME = #{givenName},
+		MIDDLE_NAME = #{middleName},
+		GENDER = #{gender},
+		RELATIONSHIP_TYPE_ID = (SELECT RELATIONSHIP_TYPE_ID FROM friday.FRIDAY_CONTACT_RELATIONSHIP_TYPE WHERE RELATIONSHIP_TYPE=#{relationship}),
+		RELATIONSHIP_STRENGTH = #{relationshipStrength},
+		CONTACT_PICTURE = #{contactPicture}
+		WHERE USER_CONTACT_ID = #{userContactId}
+	</update>
+	
+	<delete id="deleteContact">
+		DELETE FROM friday.FRIDAY_USER_CONTACT
+		WHERE USER_CONTACT_ID = #{userContactId}
+	</delete>
+	
+	<insert id="insertContactDetail">
+		INSERT INTO friday.FRIDAY_USER_CONTACT_DETAILS
+		(CONTACT_DETAILS_ID,
+		USER_CONTACT_ID,
+		DETAIL_KEY_ID,
+		DETAIL_KEY_VALUE)
+		VALUES
+		(#{contactDetailsId},
+		#{userContactId},
+		(SELECT FRIDAY_CONTACT_KEY_TYPES.DETAIL_KEY_ID FROM friday.FRIDAY_CONTACT_KEY_TYPES WHERE FRIDAY_CONTACT_KEY_TYPES.DETAIL_KEY_NAME = #{detailKeyName}),
+		#{detailKeyValue})
+	</insert>
+	
+	<delete id="deleteContactDetailsForUserContact">
+		DELETE FROM friday.FRIDAY_USER_CONTACT_DETAILS
+		WHERE USER_CONTACT_ID = #{userContactId}
+	</delete>
+	
+</mapper>    

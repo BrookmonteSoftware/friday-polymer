@@ -1,0 +1,501 @@
+<link rel="import" href="../js/bower_components/polymer/polymer.html">
+<link rel="import"
+  href="../js/bower_components/iron-resizable-behavior/iron-resizable-behavior.html"
+  th:href="@{../js/bower_components/iron-resizable-behavior/iron-resizable-behavior.html}">
+  
+<script src="../js/bower_components/moment/moment.js"
+  th:src="@{../js/bower_components/moment/moment.js}"></script>
+
+<script src="../js/skycons/skycons.js" th:src="@{../js/skycons/skycons.js}"></script>
+
+<dom-module id="friday-darksky-weather">
+
+<template>
+
+<div id="weatherDiv">
+  <img id="weatherBkgd" src='/images/weather-panel-bkgd.jpg'/>
+  <div style="margin: 10px">
+    <div id="currentWeather">
+      <div id="weatherPanelHeader" style="padding-top: 4px;">
+        <span>Current Weather for &nbsp;</span><span id="userCity"></span>
+        <img id="weatherAlertsIcon"
+          title="Show weather alerts"
+          style="display: none; cursor: pointer; position: relative; border: none; opacity: 1; z-index: 2; top: 3px; left: 4px; height: 20px; width: 20px;"
+          src='/images/cloud-warning.png'
+          onclick="javascript:showWeatherAlerts();" />
+        <span id="weatherTime"></span>
+      </div>
+      <table style="border-collapse: collapse; border-spacing: 0px;">
+        <tbody>
+          <tr>
+            <td>
+              <canvas id="currentWeatherIcon" width="84" height="84"></canvas>
+            </td>
+            <td style="vertical-align: top; overflow: hidden; width: 40%;">
+              <div id="currentTemperature"></div>
+              <div id="weatherSummary"></div>
+              <div id="currentPrecipitation"></div>
+              <div id="currentWind"></div>
+            </td>
+            <td style="vertical-align: top; overflow: hidden; width: 60%;">
+              <table style="width: 100%; height: 100px;">
+                <tbody>
+                  <tr>
+                    <td style="width: 100%">
+                      <div class="layout horizontal flex">
+                        <div id="0" class="time24 flex">
+                          <div id="time0"></div>
+                          <canvas class="icon24" id="icon0" width="18" height="18"
+                            onclick="javascript:showDetails(this);"></canvas>
+                          <span class="hiTemp24" id="hiTemp0"></span>
+                        </div>
+                        <div id="1" class="time24 flex">
+                          <div id="time1"></div>
+                          <canvas class="icon24" id="icon1" width="18" height="18"
+                            onclick="javascript:showDetails(this);"></canvas>
+                          <span class="hiTemp24" id="hiTemp1"></span>
+                        </div>
+                        <div id="2" class="time24 flex">
+                          <div id="time2"></div>
+                          <canvas class="icon24" id="icon2" width="18" height="18"
+                            onclick="javascript:showDetails(this);"></canvas>
+                          <span class="hiTemp24" id="hiTemp2"></span>
+                        </div>
+                        <div id="3" class="time24 flex">
+                          <div id="time3"></div>
+                          <canvas class="icon24" id="icon3" width="18" height="18"
+                            onclick="javascript:showDetails(this);"></canvas>
+                          <span class="hiTemp24" id="hiTemp3"></span>
+                        </div>
+                        <div id="4" class="time24 flex">
+                          <div id="time4"></div>
+                          <canvas class="icon24" id="icon4" width="18" height="18"
+                            onclick="javascript:showDetails(this);"></canvas>
+                          <span class="hiTemp24" id="hiTemp4"></span>
+                        </div>
+                        <div id="5" class="time24 flex">
+                          <div id="time5"></div>
+                          <canvas class="icon24" id="icon5" width="18" height="18"
+                            onclick="javascript:showDetails(this);"></canvas>
+                          <span class="hiTemp24" id="hiTemp5"></span>
+                        </div>
+                        </div>
+                        </td>
+                        </tr>
+                        <tr>
+                        <td>
+                        <div class="layout horizontal flex">
+                        <div id="6" class="time24 flex">
+                          <div id="time6"></div>
+                          <canvas class="icon24" id="icon6" width="18" height="18"
+                            onclick="javascript:showDetails(this);"></canvas>
+                          <span class="hiTemp24" id="hiTemp6"></span>
+                        </div>
+                        <div id="7" class="time24 flex">
+                          <div id="time7"></div>
+                          <canvas class="icon24" id="icon7" width="18" height="18"
+                            onclick="javascript:showDetails(this);"></canvas>
+                          <span class="hiTemp24" id="hiTemp7"></span>
+                        </div>
+                        <div id="8" class="time24 flex">
+                          <div id="time8"></div>
+                          <canvas class="icon24" id="icon8" width="18" height="18"
+                            onclick="javascript:showDetails(this);"></canvas>
+                          <span class="hiTemp24" id="hiTemp8"></span>
+                        </div>
+                        <div id="9" class="time24 flex">
+                          <div id="time9"></div>
+                          <canvas class="icon24" id="icon9" width="18" height="18"
+                            onclick="javascript:showDetails(this);"></canvas>
+                          <span class="hiTemp24" id="hiTemp9"></span>
+                        </div>
+                        <div id="10" class="time24 flex">
+                          <div id="time10"></div>
+                          <canvas class="icon24" id="icon10" width="18" height="18"
+                            onclick="javascript:showDetails(this);"></canvas>
+                          <span class="hiTemp24" id="hiTemp10"></span>
+                        </div>
+                        <div id="11" class="time24 flex">
+                          <div id="time11"></div>
+                          <canvas class="icon24" id="icon11" width="18" height="18"
+                            onclick="javascript:showDetails(this);"></canvas>
+                          <span class="hiTemp24" id="hiTemp11"></span>
+                        </div>
+                        </div>
+                    </td>
+                  </tr>
+              </tbody>
+              </table>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <div id="sevenDayForecast">
+    <div id="weatherPanelHeader">
+      <span>Seven Day Forecast:</span>&nbsp;<span id="forecastSummary"></span>
+    </div>
+    <div class="layout horizontal flex">
+      <div id="d0" class="day weekday flex" style="border-right: 1px solid #1C68AC;">
+        <canvas class="iconday" id="dayicon0" width="48" height="48"></canvas> 
+        <div id="day0" class="day"></div>        
+        <div class="daySummary" id="daySummary0"></div>       
+      </div>
+      <div id="d1" class="day weekday flex" style="border-right: 1px solid #1C68AC;">
+        <canvas class="iconday" id="dayicon1" width="48" height="48"></canvas>      
+        <div id="day1" class="day"></div>        
+        <div class="daySummary" id="daySummary1"></div>
+      </div>
+      <div id="d2" class="day weekday flex" style="border-right: 1px solid #1C68AC;">
+        <div id="day2" class="day"></div>        
+        <div class="daySummary" id="daySummary2"></div>
+        <canvas class="iconday" id="dayicon2" width="48" height="48"></canvas>
+      </div>
+      <div id="d3" class="day weekday flex" style="border-right: 1px solid #1C68AC;">
+        <div id="day3" class="day"></div>        
+        <div class="daySummary" id="daySummary3"></div>
+        <canvas class="iconday" id="dayicon3" width="48" height="48">        
+      </div>
+      <div id="d4" class="day weekday flex" style="border-right: 1px solid #1C68AC;">
+        <div id="day4" class="day"></div>        
+        <div class="daySummary" id="daySummary4"></div>
+        <canvas class="iconday" id="dayicon4" width="48" height="48"></canvas>        
+      </div>
+      <div id="d5" class="day weekday flex" style="border-right: 1px solid #1C68AC;">
+        <div id="day5" class="day"></div>        
+        <div class="daySummary" id="daySummary5"></div>
+        <canvas class="iconday" id="dayicon5" width="48" height="48"></canvas>        
+      </div>
+      <div id="d6" class="day weekday flex">
+        <div id="day6" class="day"></div>        
+        <div class="daySummary" id="daySummary6"></div>
+        <canvas class="iconday" id="dayicon6" width="48" height="48"></canvas>        
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="weatherAlerts" style="display:none">
+  <div id="weatherAlertsContent"></div>
+</div>
+
+<iron-ajax id="darkskyajax" url="" handle-as="json" on-response="hresponse" debounce-duration="300">
+</iron-ajax>
+  
+</template>
+
+<script>
+  var weather = null;
+  var gettingWeather = false;
+  var _this = null;
+
+  //clear-day, clear-night, rain, snow, sleet, wind, fog, cloudy, partly-cloudy-day, or partly-cloudy-night.
+  var skycons = new Skycons(
+  {
+      "monochrome" : false,
+      "colors" :
+      {
+          "main" : "#010101",
+          "moon" : "#FEFCD7",
+          "fog" : "#A0A0A0",
+          "cloud" : "#606060",
+          "snow" : "#C2EEFF",
+          "leaf" : "#2C5228",
+          "rain" : "#7FDBFF",
+          "sun" : "#FCD440"
+      }
+  });
+
+  Polymer(
+  {
+      is : 'friday-darksky-weather',
+      behaviors : [ Polymer.IronResizableBehavior ],
+      getWeather : function()
+      {
+          // Dark Sky weather API request has to be proxied
+          this.$.darkskyajax.url = getBaseLocation() + "/currentWeatherData?" + "latitude=" + this.lat + "&"
+                  + "longitude=" + this.lon;
+
+          this.$.darkskyajax.generateRequest();
+      },
+      hresponse : function(request)
+      {
+          weather = this.$.darkskyajax.lastResponse;
+
+          this.fire('weatherChanged',
+          {
+              weatherChanged : true
+          });
+      },
+      attached : function()
+      {
+          _this = this;
+          skycons.add("currentWeatherIcon", "clear-day");
+
+          skycons.add("icon0", "clear-day");
+          skycons.add("icon1", "clear-day");
+          skycons.add("icon2", "clear-day");
+          skycons.add("icon3", "clear-day");
+          skycons.add("icon4", "clear-day");
+          skycons.add("icon5", "clear-day");
+          skycons.add("icon6", "clear-day");
+          skycons.add("icon7", "clear-day");
+          skycons.add("icon8", "clear-day");
+          skycons.add("icon9", "clear-day");
+          skycons.add("icon10", "clear-day");
+          skycons.add("icon11", "clear-day");
+
+          skycons.add("dayicon0", "clear-day");
+          skycons.add("dayicon1", "clear-day");
+          skycons.add("dayicon2", "clear-day");
+          skycons.add("dayicon3", "clear-day");
+          skycons.add("dayicon4", "clear-day");
+          skycons.add("dayicon5", "clear-day");
+          skycons.add("dayicon6", "clear-day");
+          
+          this.async(this.notifyResize, 1);
+          window.setInterval(this.refreshWeather, 1000 * 60 * this.refreshinterval);
+      },
+      listeners :
+      {
+          'iron-resize' : '_onIronResize',
+          'lat-changed' : '_onLocationChange',
+          'lon-changed' : '_onLocationChange'
+      },
+      properties :
+      {
+          lat :
+          {
+              type : String,
+              notify : true,
+              reflectToAttribute : true
+          },
+          lon :
+          {
+              type : String,
+              notify : true,
+              reflectToAttribute : true
+          },
+          refreshinterval :
+          {
+              value : 5, // default refresh interval is 5 minutes
+              type : String,
+              notify : true,
+              reflectToAttribute : true
+          }
+      },
+      _onIronResize : function()
+      {
+          var infoCard = jQuery("#infoCard");
+          var cardHeight = infoCard.height();
+
+          var weatherPanel = jQuery("#weatherDiv");
+          weatherPanel.height(cardHeight - 82);
+          
+          var weatherBkgd = jQuery("#weatherBkgd");
+          weatherBkgd.height(cardHeight - 84);
+      },
+      _onLocationChange : function()
+      {
+          if (!gettingWeather && (typeof this.lat != "undefined") && (typeof this.lon != "undefined"))
+          {
+              gettingWeather = true;
+              this.getWeather();
+          }
+      },
+      refreshWeather : function()
+      {
+          gettingWeather = true;
+                    
+          var weatherObj = document.querySelector('friday-darksky-weather');
+          weatherObj.getWeather();
+      }
+  });
+
+  this.addEventListener('weatherChanged', function(e)
+  {
+      updateWeatherDisplay();
+
+      // after everything is received, parsed, and UI built,
+      // new requests to get weather data can be accepted
+      gettingWeather = false;
+  });
+
+  updateWeatherDisplay = function()
+  {
+      // parse the Dark Sky weather JSON and build the UI      
+      var currentWeather = weather.currently;
+      var minuteByMinuteWeather = weather.minutely;
+      var hourlyWeather = weather.hourly;
+      var dailyWeather = weather.daily;
+      var weatherAlerts = weather.alerts;
+
+      //alert(moment(dailyWeather.data[0].time, "X").format() + " " + dailyWeather.data[0].precipProbability);
+
+      var weatherTime = jQuery('#weatherTime');
+      weatherTime
+              .html("Powered by <a target='_blank' style='position:relative; z-index:3' href='http://forecast.io/'>Forecast</a>. Last Updated: "
+                      + moment(currentWeather.time, "X").format("LTS"));
+
+      var userCity = jQuery('#userCity');
+      userCity.html(userCurrentLocation.city + ", " + userCurrentLocation.state);
+
+      // clear-day, clear-night, rain, snow, sleet, wind, fog, cloudy, partly-cloudy-day, or partly-cloudy-night
+      skycons.set("currentWeatherIcon", currentWeather.icon);
+
+      var weatherSummary = jQuery('#weatherSummary');
+      weatherSummary.html(minuteByMinuteWeather.summary);
+
+      currentTemperature = jQuery('#currentTemperature');
+      currentTemperature.html(parseFloat(currentWeather.temperature).toFixed(1) + "F");
+
+      if (dailyWeather.data[0].precipIntensity > 0)
+      {
+          currentPrecipitation = jQuery('#currentPrecipitation');
+          currentPrecipitation.html(parseFloat(dailyWeather.data[0].precipProbability * 100).toFixed(0) + "% chance of "
+                  + dailyWeather.data[0].precipType + ".");
+      }
+
+      if (dailyWeather.data[0].windSpeed > 0)
+      {
+          currentWind = jQuery('#currentWind');
+          currentWind.html(("Wind " + parseFloat(dailyWeather.data[0].windSpeed).toFixed(0)) + " mph.");
+      }
+
+      // hourly forecast
+      for (var i = 0; i < 12; i++)
+      {
+          var timespan = jQuery("#time" + i);
+          timespan.html(moment(hourlyWeather.data[i + 1].time, "X").format("ha"));
+
+          skycons.set("icon" + i, hourlyWeather.data[i + 1].icon);
+
+          var hiTemp = jQuery("#hiTemp" + i);
+          hiTemp.html(parseFloat(hourlyWeather.data[i + 1].temperature).toFixed(0));
+      }
+
+      if (typeof weatherAlerts !== "undefined")
+      {
+          if (weatherAlerts.length > 0)
+          {
+            	jQuery("#weatherAlertsIcon").css("display", "inline");
+          }
+      }
+      
+      var sevenDayForecast = weather.daily;
+
+      //alert(JSON.stringify(sevenDayForecast));
+
+      var forecastSummary = jQuery('#forecastSummary');
+      forecastSummary.html(sevenDayForecast.summary);
+      
+      // seven day forecast
+      for (var i = 0; i < 7; i++)
+      {
+          var timespan = jQuery("#day" + i);
+          
+          if (i == 0)
+          {
+              timespan.html("Today");
+          }
+          else if (i == 1)
+          {
+              timespan.html("Tomorrow");
+          }
+          else
+          {
+          	timespan.html(moment(sevenDayForecast.data[i].time, "X").format("dddd MMM D"));
+          }
+
+          var daySummary = jQuery("#daySummary" + i);
+          
+          var dayForecast = sevenDayForecast.data[i].summary;
+          dayForecast += " High: " + parseFloat(sevenDayForecast.data[i].temperatureMax).toFixed(0) + ".";
+          dayForecast += " Low: " + parseFloat(sevenDayForecast.data[i].temperatureMin).toFixed(0) + ".";
+          
+          if (typeof sevenDayForecast.data[i].precipType !== "undefined")
+          {
+          	var precip = parseFloat(sevenDayForecast.data[i].precipProbability * 100).toFixed(0)
+          		+ "% chance of " + sevenDayForecast.data[i].precipType + "."; 
+          
+          	dayForecast += " " + precip;
+          }
+          
+          daySummary.html(dayForecast);
+          
+          skycons.set("dayicon" + i, sevenDayForecast.data[i].icon);
+      }                
+
+      skycons.play();
+  };
+
+  showDetails = function(obj)
+  {
+      alert(obj.id);
+  };
+  
+  showWeatherAlerts = function()
+  {
+      var weatherAlertsDlg = document.getElementById("weatherAlerts");
+
+      if ($(weatherAlertsDlg).hasClass("ui-dialog-content"))
+      {
+          var isOpen = jQuery("#weatherAlerts").dialog("isOpen");
+          
+          if (isOpen)
+          {
+              jQuery("#weatherAlerts").dialog("close");
+              return;
+          }
+      }
+      
+      var weatherAlerts = weather.alerts;
+      
+      var weatherAlertsHtml = "";
+      for (var i = 0; i < weatherAlerts.length; i++)
+      {
+          weatherAlertsHtml += weatherAlerts[i].title;
+          weatherAlertsHtml += "<div style='font: normal normal 11px Calibri, sans-serif; margin-bottom: 5px;'>";
+          weatherAlertsHtml += weatherAlerts[i].description
+          weatherAlertsHtml += "</div>";
+      }
+
+      if (weatherAlertsHtml.length > 0)
+      {
+          jQuery("#weatherAlertsContent").html(weatherAlertsHtml);
+      }
+      else
+      {
+          jQuery("#weatherAlertsContent").html("No alerts at this time");
+      }
+      
+      $("#weatherAlerts").dialog(
+      {
+          title : "Weather Alerts",
+          height : 400,
+          width : 500,
+          autoOpen : true,
+          modal : false,
+          resizable : false,
+          draggable : true,
+          buttons: [
+                    {
+                        text: "Ok",
+                        click: function()
+                            {
+                                $( this ).dialog( "close" );
+                            }
+                      }          
+                    ]        
+      });
+
+      jQuery("#weatherAlerts").parent().css("border", "1px solid #1E66A7");
+      jQuery("#weatherAlerts").parent().find("button.ui-dialog-titlebar-close").blur();
+      
+  }
+</script>
+        
+</dom-module>

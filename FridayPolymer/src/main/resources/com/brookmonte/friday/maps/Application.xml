@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.brookmonte.friday.dao.admin.ApplicationDao">
+	<select id="getPermissionByName" parameterType="java.lang.String" resultType="Permission">
+		select
+			p.PERMISSION_ID as permissionId,
+			p.PERMISSION_NAME as permissionName,
+			p.PERMISSION_DESCRIPTION as permissionDescription
+		from FRIDAY_PERMISSION p
+		where p.PERMISSION_NAME = #{permissionName}
+	</select>
+</mapper>

@@ -1,0 +1,22 @@
+<link rel="import" href="../js/bower_components/polymer/polymer.html">
+      
+<dom-module id="greeting-display">
+  <template>
+    <h1>Greetings!</h1>
+    <p>The greeting id is <span>{{greetingId}}</span></p>
+    <p>The greeting content is <span>{{greetingContent}}</span></p>
+  </template>
+  <script>
+    Polymer({
+      is: 'greeting-display',
+      properties: {
+          greetingId: {
+            type: String
+          },
+          greetingContent: {
+              type: String
+            }          
+        }      
+    });
+  </script>
+</dom-module>

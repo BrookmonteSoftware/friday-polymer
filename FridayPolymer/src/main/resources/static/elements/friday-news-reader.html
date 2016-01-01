@@ -1,0 +1,196 @@
+  <!-- Stylesheets -->
+  
+  <!-- Non-Polymer JS libraries -->  
+  <script src="../js/bower_components/moment/moment.js" th:src="@{../js/bower_components/moment/moment.js}"></script>
+  <script src="../js/bower_components/jquery-cycle2/build/jquery.cycle2.min.js" th:src="@{../js/bower_components/jquery-cycle2/build/jquery.cycle2.min.js}"></script>
+
+
+  <!-- Friday application JS libraries -->
+  
+  <!-- POLYMER ELEMENTS -->
+  <link rel="import" href="../js/bower_components/polymer/polymer.html">
+  
+  <!-- IRON -->
+  <link rel="import" href="../js/bower_components/iron-resizable-behavior/iron-resizable-behavior.html" th:href="@{../js/bower_components/iron-resizable-behavior/iron-resizable-behavior.html}">
+  
+  <!-- PAPER -->
+  
+  <!-- GOOGLE -->
+
+  <!-- FRIDAY ELEMENTS -->
+
+<dom-module id="friday-news-reader">
+
+<template>
+
+<div id="newsDivContainer" class="layout fit" style="position: relative; top: 0px;" style="overflow:hidden">
+  <img id="newsBkgd" src='/images/newsbackground.png' style="width: 100%; height: 100%; position: absolute; top: 0px; z-index: 0; opacity: 0.25">
+  <div style="position: relative; background-color: #FFFFFF; z-index: 5; opacity: 1; height: 30px; width: 100%;"><div style="display: inline; position: relative; top: 0px; left: 10px;width: 150px;">Top Stories from </div><img src="/images/Google-News_logo.png" style="position: relative; top: 5px; left: 10px; border: 0px; padding: 0px; width: 76px; height: 16px;"/></div>
+  <div id="newsDivWrapper" style="position: relative; top: 0px; overflow-y: auto; overflow-x: hidden">
+    <div id="newsDiv" style="position: absolute; top: 0px" data-cycle-pause-on-hover="true">
+    </div>
+  </div>
+</div>
+
+
+<iron-ajax id="newsajax" url="" handle-as="json" on-response="hresponse" debounce-duration="300">
+</iron-ajax>
+  
+</template>
+
+<script>
+  var _this = null;  
+  var news = null;
+  
+  var newsUrlList = "https://news.google.com/news?cf=all&hl=en&pz=1&ned=us&output=rss";
+
+  
+  Polymer(
+  {
+      is : 'friday-news-reader',
+      behaviors : [ Polymer.IronResizableBehavior ],
+      getNews : function()
+      {                  
+          // news request has to be proxied
+          this.$.newsajax.url = getBaseLocation() + "/getNewsFeed?feedurls=" + encodeURIComponent(newsUrlList);          
+          
+          this.$.newsajax.generateRequest();
+      },
+      hresponse : function(request)
+      {
+          news = this.$.newsajax.lastResponse;
+          
+          //alert(news);
+          
+          this.fire('news-changed',
+          {
+              newsChanged : true
+          });
+      },
+      attached : function()
+      {
+          _this = this;
+          
+          this.async(this.notifyResize, 1);
+          window.setInterval(this.refreshNews, 1000 * 60 * this.refreshinterval);
+      },
+      ready: function()
+      {
+          this.getNews();
+      },
+      listeners :
+      {
+          'iron-resize'	 : '_onIronResize',
+          'news-changed' : '_onNewsChange'
+      },
+      properties :
+      {
+          refreshinterval :
+          {
+              value : 30, // default refresh interval is 30 minutes
+              type : String,
+              notify : true,
+              reflectToAttribute : true
+          }
+      },
+      _onIronResize : function()
+      {
+          var infoCard = jQuery("#infoCard");
+          var cardHeight = infoCard.height();
+          var cardWidth = infoCard.width();
+          
+          var newsDivContainer = jQuery("#newsDivContainer");
+          newsDivContainer.height(cardHeight - 84);
+          
+          var newsDivWrapper = jQuery("#newsDivWrapper");
+          newsDivWrapper.height(cardHeight - 155);
+          
+          var newsDiv = jQuery("#newsDiv");
+          newsDiv.height(cardHeight - 155);
+          newsDiv.width(cardWidth - 20);
+      },
+      _onNewsChange : function()
+      {
+          this.updateNewsDisplay();
+
+          // after everything is received, parsed, and UI built,
+          // new requests to get news data can be accepted
+          gettingNews = false;          
+      },
+      
+      refreshNews : function()
+      {
+          gettingNews = true;
+          var newsObj = document.querySelector('friday-news-reader');
+          newsObj.getNews();
+      },
+      
+      updateNewsDisplay : function()
+      {
+          this.buildNewsDisplay();        
+      },
+
+      buildNewsDisplay : function()
+      {
+          var newsDiv = jQuery("#newsDiv");
+          newsDiv.empty();
+          $(newsDiv).cycle('destroy');
+          
+          var newsDivContainer = jQuery("#newsDivContainer");
+          
+          var progressSpan = document.createElement("span");
+          newsDiv.append(progressSpan);
+          progressSpan.className = "progressSpan";
+          progressSpan.id = "progress";
+          
+          var pagerSpan = document.createElement("span");
+          newsDivContainer.append(pagerSpan);
+          pagerSpan.className = "customPager"; 
+          
+          $(newsDiv).cycle({
+              fx:    'fade', 
+              speed:  1000,
+              timeout: 10000,
+              slides: "> div",
+              pagerTemplate: "<a href='#'> {{slideNum}} </a>",
+              pager: ".customPager"
+          });
+          
+          var progress = $('#progress');
+          var slideshow = $(newsDiv);
+
+          slideshow.on( 'cycle-initialized cycle-before', function( e, opts )
+          {
+              progress.stop(true).css( 'width', 0 );
+          });
+          
+          slideshow.on( 'cycle-initialized cycle-after', function( e, opts )
+          {
+              if ( ! slideshow.is('.cycle-paused') )
+                  progress.animate({ width: '100%' }, opts.timeout, 'linear' );
+          });
+          
+          slideshow.on( 'cycle-paused', function( e, opts )
+          {
+             progress.stop();
+             
+          });
+          
+          slideshow.on( 'cycle-resumed', function( e, opts, timeoutRemaining )
+          {
+              progress.animate({ width: '100%' }, timeoutRemaining, 'linear' );
+          });           
+          
+          for (var i = 0; i < news[0].entries.length; i++)
+          {
+              var newSlide = news[0].entries[i].description.value;
+              $(newsDiv).cycle('add', newSlide);
+              //alert(JSON.stringify(news[0].entries[i].description));
+          }                   
+      }      
+  });
+ 
+
+</script>
+        
+</dom-module>

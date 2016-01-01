@@ -1,0 +1,311 @@
+
+<!-- Stylesheets -->
+
+<!-- Non-Polymer JS libraries -->
+<script src="../js/bower_components/moment/moment.js"
+  th:src="@{../js/bower_components/moment/moment.js}"></script>
+
+
+<!-- Friday application JS libraries -->
+
+<!-- POLYMER ELEMENTS -->
+<link rel="import" href="../js/bower_components/polymer/polymer.html">
+
+<!-- IRON -->
+<link rel="import"
+  href="../js/bower_components/iron-resizable-behavior/iron-resizable-behavior.html"
+  th:href="@{../js/bower_components/iron-resizable-behavior/iron-resizable-behavior.html}">
+
+<!-- PAPER -->
+
+<!-- GOOGLE -->
+<link rel="import" href="../js/bower_components/google-apis/google-apis.html"
+  th:href="@{../js/bower_components/google-apis/google-apis.html}">
+<link rel="import" href="../js/bower_components/google-map/google-map.html"
+  th:href="@{../js/bower_components/google-map/google-map.html}">
+
+<!-- FRIDAY ELEMENTS -->
+
+<dom-module id="friday-travel-times">
+<template>
+
+<table id="travelTimeTable" style="border-collapse: collapse;">
+  <thead>
+    <tr style="width: 100%;">
+      <th
+        style="width: 45%; text-align: left; background-color: #4672C4; padding-left: 10px">From</th>
+      <th style="width: 45%; text-align: left; background-color: #4672C4;">To</th>
+      <th
+        style="width: 100px; text-align: left; background-color: #4672C4; margin-right: 0px">Time</th>
+    </tr>
+  </thead>
+  <tbody id="travelTimeTableBody">
+  </tbody>
+</table>
+
+
+<iron-ajax id="traveltimesajax" debounceDuration=300 url="" handle-as="json"
+  on-response="hresponse"> </iron-ajax> </template> <script>
+  var _this = null;
+  var gettingTravelTimes = false;
+  var travelTimes = "";
+  var destinationLocation = null;
+  
+  Polymer(
+  {
+      is : 'friday-travel-times',
+      behaviors : [ Polymer.IronResizableBehavior ],
+      getTravelTimes : function(origin, destination)
+      {
+          gettingTravelTimes = true;
+          // proxied Google travel times API call
+          this.$.traveltimesajax.url = getBaseLocation() + "/getTravelTime"
+          	+ "?departure_time=" + "now"
+            + "&origin=" + origin
+          	+ "&destination=" + destination
+          	+ "&mode=" + this.travelmode
+          	+ "&traffic_model=" + this.trafficmodel;
+          
+          //alert(this.$.traveltimesajax.url);
+          
+          this.$.traveltimesajax.generateRequest();
+      },
+      hresponse : function(request)
+      {
+          travelTimes = this.$.traveltimesajax.lastResponse;
+          
+          this.fire('traveltimes-changed',
+          {
+              travelTimesChanged : true
+          });
+      },
+      attached : function()
+      {
+          _this = this;
+          
+          this.async(this.notifyResize, 1);
+          window.setInterval(this.refreshTravelTimes, 1000 * 60 * this.refreshinterval);
+      },
+      listeners :
+      {
+          'iron-resize' : '_onIronResize',
+          'traveltimes-changed' : '_onTravelTimesChange',
+          'currentlocation-changed' : '_onLocationChange',
+          'homelocations-changed' : '_onLocationChange',
+          'worklocations-changed' : '_onLocationChange',
+          'favoritelocations-changed' : '_onLocationChange'
+      },
+      properties :
+      {          
+          refreshinterval :
+          {
+              value : 5, // default refresh interval is 5 minutes
+              type : String,
+              notify : true,
+              reflectToAttribute : true
+          },
+          currentlocation :
+          {
+              type : Object,
+              notify : true,
+              reflectToAttribute : true
+          },          
+          homelocations :
+          {
+              type : Object,
+              notify : true,
+              reflectToAttribute : true
+          },
+          worklocations :
+          {
+              type : Object,
+              notify : true,
+              reflectToAttribute: true
+          },
+          favoritelocations :
+          {
+              type : Object,
+              notify : true,
+              reflectToAttribute: true
+          },          
+          travelmode :
+          {
+              value : "driving",
+              type : String,
+              notify : true,
+              reflectToAttribute : true
+          },
+          trafficmodel :
+          {
+              value : "best_guess",
+              type : String,
+              notify : true,
+              reflectToAttribute : true
+          }
+      },
+      _onIronResize : function()
+      {
+          var infoCard = jQuery("#infoCard");
+          var cardHeight = infoCard.height();
+      },
+      _onLocationChange : function()
+      {
+          this.getTravelTimesForLocations();
+      },
+      _onTravelTimesChange : function()
+      {
+          this.updateTravelTimesDisplay();
+
+          // after everything is received, parsed, and UI built,
+          // new requests to get traffic data can be accepted
+          gettingTravelTimes = false;
+      },
+
+      refreshTravelTimes : function()
+      {
+          gettingTravelTimes = true;
+          var travelTimesObj = document.querySelector('friday-travel-times');
+          travelTimesObj.getTravelTimesForLocations();
+      },
+	  getTravelTimesForLocations : function()
+	  {
+    	  //fridaytraveltime.origin = userHomeLocations[0].lat + "," + userHomeLocations[0].lon;
+          //fridaytraveltime.destination = userWorkLocations[0].lat + "," + userWorkLocations[0].lon;
+          var origin = this.currentlocation.lat + "," + this.currentlocation.lon;
+
+          if (this.homelocations != null && this.worklocations != null)
+          {
+              for (var i = 0; i < this.homelocations.length; i++)
+              {
+                  var destination = this.homelocations[i].lat + "," + this.homelocations[i].lon;
+
+                  if (origin != destination)
+                  {
+                      destinationLocation = this.homelocations[i];
+                      this.getTravelTimes(origin, destination);
+                  }
+              }
+
+              for (var i = 0; i < this.worklocations.length; i++)
+              {
+                  var destination = this.worklocations[i].lat + "," + this.worklocations[i].lon;
+
+                  if (origin != destination)
+                  {
+                      destinationLocation = this.worklocations[i];
+                      this.getTravelTimes(origin, destination);
+                  }
+              }
+          }
+
+          if (this.favoritelocations != null)
+          {
+              for (var i = 0; i < this.favoritelocations.length; i++)
+              {
+                  var destination = this.favoritelocations[i].lat + "," + this.favoritelocations[i].lon;
+
+                  if (origin != destination)
+                  {
+                      destinationLocation = this.favoritelocations[i];
+                      this.getTravelTimes(origin, destination);
+                  }
+              }
+            }	        
+	    },
+	    
+        updateTravelTimesDisplay : function()
+        {
+            //alert(JSON.stringify(travelTimes.routes.length));
+            
+            if (travelTimes != null)
+            {
+                if (travelTimes.routes != null && travelTimes.routes.length > 0)
+                {
+                    var travelTimeUpdate = jQuery('#travelTimeUpdateTime');
+                    travelTimeUpdate
+                            .html("Last Updated: "
+                                    + moment().format("LTS"));
+                    
+            		//alert(JSON.stringify(travelTimes.routes[0].legs));
+            		//alert(JSON.stringify(travelTimes.routes[0].legs.length));
+            		var tripDuration = 0;
+            		
+            		for (var i = 0; i < travelTimes.routes[0].legs.length; i++)
+            		{
+            		    tripDuration += travelTimes.routes[0].legs[i].duration.value;
+            		}
+            		
+            		//alert(tripDuration / 60);
+            		
+            		var travelTimeTableBody = document.querySelector("#travelTimeTableBody");
+            		jQuery(travelTimeTableBody).empty();
+            		
+            		var tr = document.createElement("tr");
+            		travelTimeTableBody.appendChild(tr);
+            		
+            		var td = document.createElement("td");
+            		tr.appendChild(td);
+            		td.style.verticalAlign = "top";
+            		td.style.width = "45%";
+            		td.style.paddingLeft = "10px";            	
+            		
+               		if (userCurrentLocation.name != null && userCurrentLocation.name.length > 0)
+            		{
+            		    var fromName = document.createTextNode(userCurrentLocation.name);
+            			td.appendChild(fromName);
+            		}
+               		else if (userCurrentLocation.locationType == "HOME")
+               		{
+            		    var fromName = document.createTextNode("Home");
+            			td.appendChild(fromName);               		    
+               		}
+               		else if (userCurrentLocation.locationType == "WORK")
+               		{
+            		    var fromName = document.createTextNode("Work");
+            			td.appendChild(fromName);               		    
+               		}               		
+            		else
+            		{
+            		    var fromName = document.createTextNode(userCurrentLocation.formattedAddress);
+            			td.appendChild(fromName);            		    
+            		}            		
+
+            		var td = document.createElement("td");
+            		tr.appendChild(td);
+            		td.style.verticalAlign = "top";
+            		td.style.width = "45%";
+
+            		if (destinationLocation.name != null && destinationLocation.name.length > 0)
+            		{
+            		    var toName = document.createTextNode(destinationLocation.name);
+            			td.appendChild(toName);
+            		}
+               		else if (destinationLocation.locationType == "HOME")
+               		{
+            		    var toName = document.createTextNode("Home");
+            			td.appendChild(toName);               		    
+               		}
+               		else if (destinationLocation.locationType == "WORK")
+               		{
+            		    var toName = document.createTextNode("Work");
+            			td.appendChild(toName);               		    
+               		}            		
+            		else
+            		{
+            		    var toName = document.createTextNode(destinationLocation.formattedAddress);
+            			td.appendChild(toName);            		    
+            		}
+            		
+            		var td = document.createElement("td");
+            		tr.appendChild(td);
+            		td.style.verticalAlign = "top";
+            		td.style.width = "100%";
+            		
+            		var time = document.createTextNode(parseFloat(tripDuration / 60).toFixed(0) + " min");
+            		td.appendChild(time);
+                }
+            }
+        }
+
+    });
+</script> </dom-module>

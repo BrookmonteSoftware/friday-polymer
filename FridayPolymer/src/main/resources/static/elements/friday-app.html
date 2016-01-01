@@ -1,0 +1,543 @@
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="../styles/main.css" th:href="@{../styles/main.css}">
+
+  <link rel="stylesheet" href="../js/jquery-ui/jquery-ui-1.11.4/jquery-ui.min.css" th:href="@{../js/jquery-ui/jquery-ui-1.11.4/jquery-ui.min.css}">
+  <link rel="stylesheet" href="../js/jquery-ui/jquery-ui-1.11.4/jquery-ui.theme.min.css" th:href="@{../js/jquery-ui/jquery-ui-1.11.4/jquery-ui.theme.min.css}">
+
+  <link rel="stylesheet" href="../js/bower_components/fullcalendar/dist/fullcalendar.css" th:href="@{../js/bower_components/fullcalendar/dist/fullcalendar.css}">
+  <link rel="stylesheet" media="print" href="../js/bower_components/fullcalendar/dist/fullcalendar.print.css" th:href="@{../js/bower_components/fullcalendar/dist/fullcalendar.print.css}">
+
+  <!-- Non-Polymer JS libraries -->
+  <script src="../js/bower_components/jquery/dist/jquery.min.js" th:src="@{../js/bower_components/jquery/dist/jquery.min.js}"></script>
+
+  <script src="../js/jquery-ui/jquery-ui-1.11.4/jquery-ui.min.js" th:src="@{../js/jquery-ui/jquery-ui-1.11.4/jquery-ui.min.js}"></script>
+  
+  <script src="../js/bower_components/moment/moment.js" th:src="@{../js/bower_components/moment/moment.js}"></script>
+  <script src="../js/bower_components/fullcalendar/dist/fullcalendar.js" th:src="@{../js/bower_components/fullcalendar/dist/fullcalendar.js}"></script>
+  <script src="../js/bower_components/fullcalendar/dist/lang-all.js" th:src="@{../js/bower_components/fullcalendar/dist/lang-all.js}"></script>
+  <script src="../js/bower_components/fullcalendar/dist/gcal.js" th:src="@{../js/bower_components/fullcalendar/dist/gcal.js}"></script>
+  <script src="../js/spinners/spinners.min.js" th:src="@{../js/spinners/spinners.min.js}"></script>  
+
+  <!-- Friday application JS libraries -->
+  <script src="../js/friday/friday_utils.js" th:src="@{../js/friday/friday_utils.js}"></script>  
+  <script src="../js/friday/friday_initialize.js" th:src="@{../js/friday/friday_initialize.js}"></script>
+  <script src="../js/friday/friday_banner_menu.js" th:src="@{../js/friday/friday_banner_menu.js}"></script>
+  <script src="../js/friday/friday_geolocation.js" th:src="@{../js/friday/friday_geolocation.js}"></script>
+  
+  <!-- POLYMER ELEMENTS -->      
+  <!-- IRON -->
+  <link rel="import" href="../js/bower_components/iron-flex-layout/iron-flex-layout.html" th:href="@{../js/bower_components/iron-flex-layout/iron-flex-layout.html}">    
+  <link rel="import" href="../js/bower_components/iron-dropdown/iron-dropdown.html">
+  <link rel="import" href="../js/bower_components/iron-menu-behavior/iron-menu-behavior.html">  
+  <link rel="import" href="../js/bower_components/iron-behaviors/iron-button-state.html">
+  <link rel="import" href="../js/bower_components/iron-behaviors/iron-control-state.html">
+  <link rel="import" href="../js/bower_components/iron-collapse/iron-collapse.html">
+  <link rel="import" href="../js/bower_components/iron-ajax/iron-ajax.html">
+  <link rel="import" href="../js/bower_components/iron-ajax/iron-request.html">
+  <link rel="import" href="../js/bower_components/iron-pages/iron-pages.html">
+  <link rel="import" href="../js/bower_components/iron-resizable-behavior/iron-resizable-behavior.html" th:href="@{../js/bower_components/iron-resizable-behavior/iron-resizable-behavior.html}">
+         
+  <!-- PAPER -->
+  <link rel="import" href="../js/bower_components/paper-styles/paper-styles.html" th:href="@{../js/bower_components/paper-styles/paper-styles.html}">
+  <link rel="import" href="../js/bower_components/paper-input/paper-input-container.html" th:href="@{../js/bower_components/paper-input/paper-input-container.html}">  
+  <link rel="import" href="../js/bower_components/paper-header-panel/paper-header-panel.html" th:href="@{../js/bower_components/paper-header-panel/paper-header-panel.html}">
+  <link rel="import" href="../js/bower_components/paper-toolbar/paper-toolbar.html">
+  <link rel="import" href="../js/bower_components/paper-material/paper-material.html">
+  <link rel="import" href="../js/bower_components/paper-button/paper-button.html">
+  <link rel="import" href="../js/bower_components/paper-menu/paper-menu.html">
+  <link rel="import" href="../js/bower_components/paper-menu/paper-submenu.html">
+  <link rel="import" href="../js/bower_components/paper-item/paper-item.html">
+  <link rel="import" href="../js/bower_components/paper-tabs/paper-tabs.html">
+  
+  <!-- GOOGLE -->
+  <link rel="import" href="../js/bower_components/google-apis/google-apis.html" th:href="@{../js/bower_components/google-apis/google-apis.html}">
+  <link rel="import" href="../js/bower_components/google-map/google-map.html" th:href="@{../js/bower_components/google-map/google-map.html}">
+  
+  <!-- FRIDAY ELEMENTS --> 
+  <link rel="import" href="../elements/paper-card.html" th:href="@{../elements/paper-card.html}">
+  <link rel="import" href="../elements/paper-dropdown-menu.html" th:href="@{../elements/paper-dropdown-menu.html}">
+  <link rel="import" href="../elements/friday-banner-menu.html" th:href="@{../elements/friday-banner-menu.html}">
+  <link rel="import" href="../elements/friday-darksky-weather.html" th:href="@{../elements/friday-darksky-weather.html}">
+  <link rel="import" href="../elements/friday-bing-traffic-incidents.html" th:href="@{../elements/friday-bing-traffic-incidents.html}">
+  <link rel="import" href="../elements/friday-travel-times.html" th:href="@{../elements/friday-travel-times.html}">
+  <link rel="import" href="../elements/friday-news-reader.html" th:href="@{../elements/friday-news-reader.html}">
+  <link rel="import" href="../elements/friday-contacts.html" th:href="@{../elements/friday-contacts.html}">
+  
+<dom-module id="friday-app">
+
+<template>
+<paper-header-panel id="fridayMainPanel" mode="seamed" style="height:800px">
+<paper-toolbar id="page-header" style="box-shadow: none; -webkit-box-shadow: none">
+  <div class="bannerLogo">My Friday</div>
+  <div class="bannerSlogan">Life is better on Friday!</div>
+
+  <friday-banner-menu id="fridayBannerMenu"></friday-banner-menu>
+</paper-toolbar>
+
+<div class="layout vertical">
+  <div class="layout horizontal flex"  id="topCardPanels">
+    <div class="layout vertical fit">
+      <div class="layout horizontal flex">
+        <paper-card id="monthCalendarCard" class="layout flex">
+          <div id='fridayHomeCalendar' class="fridayHomeCalendar card-content">
+             <div id='homeMonthlyCalendar'></div>
+          </div>
+        </paper-card>
+        <paper-card id="infoCard" heading="Information, Events, Notifications"
+          class="layout flex">
+            <paper-tabs id="infoTabs" selected="{{selected}}">
+              <paper-tab link><a href="javascript:void(0);" onclick="javascript:selectTab('today');" class="infotab horizontal center-center layout">Today</a></paper-tab>
+              <paper-tab link><a href="javascript:void(0);" onclick="javascript:selectTab('tasks');" class="infotab horizontal center-center layout">Tasks</a></paper-tab>
+              <paper-tab link><a href="javascript:void(0);" onclick="javascript:selectTab('contacts');" class="infotab horizontal center-center layout">Contacts</a></paper-tab>
+              <paper-tab link><a href="javascript:void(0);" onclick="javascript:selectTab('news');" class="infotab horizontal center-center layout">News</a></paper-tab>
+              <paper-tab link><a href="javascript:void(0);" onclick="javascript:selectTab('weather');" class="infotab horizontal center-center layout">Weather</a></paper-tab>
+              <paper-tab link><a href="javascript:void(0);" onclick="javascript:selectTab('traffic');" class="infotab horizontal center-center layout">Traffic</a></paper-tab>              
+            </paper-tabs>
+            
+            <iron-pages selected="{{selected}}">
+              <div class="layout vertical fit" style="position: absolute; top: 85px; overflow: hidden">
+                <div  style="overflow-y: auto">Today
+                  <div>More stuff</div>
+                  <div>More stuff</div>             
+                </div>
+              </div>
+              <div class="layout vertical fit" style="position: absolute; top: 85px; overflow: hidden">
+                <div  style="overflow-y: auto">Tasks
+                  <div>Some task stuff</div>
+                </div>
+              </div>
+              <div id="contactsDiv">
+                <friday-contacts></friday-contacts>
+              </div>
+              <div id="newsReaderDiv">
+                <friday-news-reader></friday-news-reader>
+              </div>
+              <div><friday-darksky-weather></friday-darksky-weather></div>
+              <div id="trafficPanel" style="overflow: hidden">
+                <img id="trafficBkgd" src='/images/traffic-bkgd.jpg'/ style="position: absolute; top: 82px; z-index: 0">                
+                <div id="travelTimesDiv">
+                  <div id="travelTimesContainer">
+                      <div id="travelTimesHeader">
+                        <span style="position: relative; top: 4px;">Travel Times</span>
+                        <span id="travelTimeUpdateTime" style="color: #AAAAAA; margin-left: 10px; font: bold italic 10px Calibri, sans-serif; position: relative; top: 4px;"></span>
+                      </div>
+                      <div style="overflow: hidden; height: 100px;">
+                        <div id="travelTimes" style="position: relative; z-index: 3; height: 90px; overflow:auto">
+                          <friday-travel-times></friday-travel-times>
+                        </div>
+                      </div>
+                      </div>
+                  </div>                
+                
+                <friday-bing-traffic-incidents style="width: 100%"></friday-bing-traffic-incidents>
+              </div>
+            </iron-pages>
+        </paper-card>
+      </div>
+      <div class="layout horizontal flex">
+        <paper-card id="dayCalendarCard" class="layout flex">
+          <div id='fridayHomeDailyCalendar' class="fridayHomeCalendar card-content">
+             <div id='homeDailyCalendar'></div>
+          </div>
+        </paper-card>
+        <paper-card id="mapCard" heading="Locations" class="layout flex">
+          <div class="homeLocationHeader">
+            <span style="float: right; padding-right: 20px;">
+              <img id="homeControl" onclick="javascript:centerMapAtUserLocation();" title="Center map at your location" style="cursor: pointer; height:18px; width: 20px; padding-right: 10px;" src="/images/map-symbols/home.png"/>  
+              <img id="searchControl" onclick="javascript:openSearchPanel();" title="Map Search" style="cursor: pointer; height:22px; width: 22px; padding-right: 10px;" src="/images/map-symbols/world_search.png"/>  
+              <img id="trafficLayerControl" title="Toggle Traffic" style="cursor: pointer; height:20px; width: 20px; padding-right: 10px;" src="/images/map-symbols/car.png"/>
+              <img id="weatherLayerControl" title="Toggle Weather" style="cursor: pointer; height:20px; width: 20px;" src="/images/map-symbols/weather_cloudy.png"/>
+            </span></div>
+        
+          <div id="mapCardContent" class="card-content" style="margin: 0px; padding: 0px">
+            <google-map id="googleMap" apiKey="AIzaSyAw9ZIE3VxDdlt0PjbkxE6zG5Al3RSvq1g"
+              class="fit" style="height: 200px"></google-map>
+          </div>
+        </paper-card>
+      </div>
+      <div id="page-footer" class="layout horizontal flex-none">
+        <table class="fridayTour">
+        <tbody style="margin: 0px; padding: 0px;">
+          <tr style="margin: 0px; padding: 0px;">
+            <td style="margin: 0px; padding: 0px;">
+                <img src="/images/Brookmonte-AMC.png" style="position: absolute; top: 0px; padding: 0px; height: 81px; margin-top: -1px; margin-left: -10px"/>
+            </td>          
+            <td style="text-align: center;"><nobr>
+                <span class="fridayVersion" id="fridayVersion" style="left: 450px;">Friday Polymer 0.0.1.BUILD-SNAPSHOT</span>
+              </nobr></td>
+            <td style="width: 50%; text-align: center">
+              <a href="http://instantssl.com/ssl.html" style="position: relative; left: 350px; text-decoration: none;">
+              <img alt="SSL"
+                src="https://www.instantssl.com/ssl-certificate-images/support/comodo_secure_100x85_transp.png"
+                style="border: 0px; width: 60px; height: 40px;"></img>
+                <span
+                style="font-weight: bold; font-size: 18px; color: white; position: relative; top: -10px;">SSL</span>
+            </a></td>
+            <td style="width: 350px; min-width: 350px; max-width: 350px;">
+              <div class="fridayCopyright" id="fridayCopyright">My
+                Friday is copyright &copy; 2015, The Brookmonte Group. All rights
+                reserved.</div>
+            </td>
+            <td>
+              <span id="cdSiteSeal1">
+              <script
+                    type="text/javascript"
+                    src="//tracedseals.starfieldtech.com/siteseal/get?scriptId=cdSiteSeal1&amp;cdSealType=Seal1&amp;sealId=55e4ye7y7mb73695d8ee7cbe0d8e1bx4794y7mb7355e4ye792e330a5857e21a0">
+              </script>
+              </span>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+</paper-header-panel>
+
+<div id="alertDiv" style="display: none">
+  <span id="alertMessage" class="alertMessage"></span>
+</div>
+
+<div id="spinnerDiv" style="display: none; position: absolute; top: 50%; left: 50%;"></div>
+
+<iron-ajax
+  id="ajax"
+  url=""
+  handle-as="json"
+  on-response="hresponse"
+  debounce-duration="300">
+</iron-ajax>
+
+</template>
+
+<script>
+	var trafficLayer = null;
+	var weatherLayer = null;
+	var googleMap = null;
+	
+	var userReady = false;
+	var mapReady = false;
+	
+	var _this = null;
+	
+	var spinnerDiv = null;
+	var spinner = null;
+		
+    Polymer(
+    {
+        is : "friday-app",
+        behaviors: [
+                    Polymer.IronResizableBehavior
+                   ],
+        getUser : function()
+        {
+            this.$.ajax.url = getBaseLocation() + "/user";
+            this.$.ajax.generateRequest();
+        },
+        hresponse : function(request)
+        {
+            //alert(request.detail.response);
+            //alert(this.$.ajax.lastResponse.firstName);
+            user = this.$.ajax.lastResponse;
+            this.fire('userSet',
+            {
+                userSet : true
+            })
+        },
+        listeners:
+        {
+            'iron-resize': '_onIronResize'
+        },
+        attached: function()
+        {
+          _this = this;
+          
+      	  spinnerDiv = document.getElementById("spinnerDiv");    	
+    	  spinner = Spinners.create(spinnerDiv, {
+    	      radius: 30,
+    	      dashes: 30,
+    	      width: 3.5,
+    	      height: 20,
+    	      opacity: 1,
+    	      padding: 3,
+    	      rotation: 700,
+    	      color: '#ED7D31'
+    	    });
+    	  
+    	  //spinner.center();
+    	  
+          this.async(this.notifyResize, 1);
+        },
+          
+        _onIronResize: function()
+        {
+			// handle resize of the app		
+			var fridayMainPanel = jQuery("#fridayMainPanel");
+			fridayMainPanel.height(window.innerHeight - 60);
+			
+			spinnerDiv.style.top = (window.innerHeight / 2) - 45 + "px";
+			spinnerDiv.style.left = (window.innerWidth / 2) - 60 + "px";
+			
+    		var monthCalendarCard = jQuery("#monthCalendarCard");
+    		var cardHeight = monthCalendarCard.height();
+
+    		var monthcal = jQuery("#homeMonthlyCalendar");  
+    		if (monthcal != null)
+    		{
+    		    jQuery('#homeMonthlyCalendar').fullCalendar('option', 'height', cardHeight - 10);
+    		}
+
+    		var dayCalendarCard = jQuery("#dayCalendarCard");
+    		cardHeight = dayCalendarCard.height();
+
+    		var daycal = jQuery("#homeDailyCalendar");  
+    		if (daycal != null)
+    		{
+    		    jQuery('#homeDailyCalendar').fullCalendar('option', 'height', cardHeight);
+    		}    		
+    		
+    		var googleMapCard = jQuery("#mapCard");
+    		cardHeight = googleMapCard.height();
+    		
+    		var map = jQuery(".google-map");
+    		map.height(cardHeight - 36);
+    		
+    		var polymap = document.querySelector("#googleMap");
+    		
+    		if (polymap != null)
+    		{
+    		    polymap.resize();
+    		}
+        } 
+    });
+        
+    this.addEventListener('userSet', function(e)
+    {
+        userReady = true;
+        
+        if (mapReady)
+        {
+        	_this.fire('appReady',
+            {
+        	    appReady : true
+            });
+        }        
+    });
+    
+    this.addEventListener('google-map-ready', function(e)
+    {
+        mapReady = true;
+        
+        if (userReady)
+        {
+        	_this.fire('appReady',
+            {
+        	    appReady : true
+            });
+        }
+    });
+    
+    
+    this.addEventListener('appReady', function(e)
+    {
+        //alert(JSON.stringify(user));
+        
+  		// set the initial tab page to be displayed
+  		var infoTabs = document.querySelector("#infoTabs");
+  		infoTabs.selected = 0;
+  		
+        var fridayBannerMenu = document.querySelector("#fridayBannerMenu");
+        fridayBannerMenu.setUser(user);
+        
+        initializeMonthlyCalendar();
+        initializeDailyCalendar();
+        
+        var fridaymap = document.querySelector('#googleMap');
+        googleMap = fridaymap.map;
+            
+        addTrafficLayer(googleMap);
+        addWeatherLayer(googleMap);
+        
+        var mapsAPI = document.querySelector('google-maps-api');
+        var clatitude = 0;
+        var clongitude = 0;
+        
+        // TODO: enhance to get user's current location
+        
+	    if (user.homeLocations.length > 0)
+	    {
+	        userHomeLocations = user.homeLocations;
+	        
+	        clatitude = userHomeLocations[0].lat;
+	        clongitude = userHomeLocations[0].lon; 
+	    }			    
+        
+        var homeLocation = new mapsAPI.api.LatLng(clatitude, clongitude);
+        googleMap.setCenter(homeLocation);
+        googleMap.zoom = 14;
+        googleMap.mapTypeId = mapsAPI.api.MapTypeId.ROADMAP;
+		
+	    var homeMarker = new google.maps.Marker({
+	      position: homeLocation,
+	      map: googleMap,
+	      title: 'Home'
+	    });        
+        
+	    if (user.workLocations.length > 0)
+	    {
+	        userWorkLocations = user.workLocations;
+	        
+	        clatitude = userWorkLocations[0].lat;
+	        clongitude = userWorkLocations[0].lon; 
+	    }			    
+        
+        var workLocation = new mapsAPI.api.LatLng(clatitude, clongitude);
+		
+	    var workMarker = new google.maps.Marker({
+	      position: workLocation,
+	      map: googleMap,
+	      title: 'Work'
+	    });	    
+	    	    
+	    // TODO: currently assuming the user's current location is the home location;
+	    // update to take into account home/work schedule and appointments
+	    userCurrentLocation = userHomeLocations[0];
+	    userFavoriteLocations = user.favoriteLocations;
+	    	    
+        var fridayweather = document.querySelector('friday-darksky-weather');
+        fridayweather.lat = userCurrentLocation.lat;
+        fridayweather.lon = userCurrentLocation.lon;	    
+
+        var fridaytraffic = document.querySelector('friday-bing-traffic-incidents');
+        
+        googleMap.addListener('zoom_changed', function(e)
+        {
+           var zoom = googleMap.getZoom();
+           
+           if ((typeof zoom === "number") && (!isNaN(zoom)))
+           {
+               fridaytraffic.mapzoom = zoom;
+           }           
+        });
+        
+        // google map is ready, so set traffic data boundaries
+        // which will update the traffic data display
+        // also, set the user locations, so travel times will update
+        googleMap.addListener('bounds_changed', function(e)
+        {            
+     		var mapBounds = googleMap.getBounds();
+
+     		var nelat = mapBounds.getNorthEast().lat();
+     		var nelon = mapBounds.getNorthEast().lng();
+     		var swlat = mapBounds.getSouthWest().lat();
+     		var swlon = mapBounds.getSouthWest().lng();
+     		
+            if ((typeof nelat === "number") && (!isNaN(nelat))
+            && (typeof nelon === "number") && (!isNaN(nelon))
+            && (typeof swlat === "number") && (!isNaN(swlat))
+            && (typeof swlon === "number") && (!isNaN(swlon)))
+			{
+         		fridaytraffic.nelat = nelat;
+         		fridaytraffic.nelon = nelon;
+         		fridaytraffic.swlat = swlat;
+         		fridaytraffic.swlon = swlon;
+			}
+            
+            if (userHomeLocations != null && userWorkLocations != null)
+            {
+                var fridaytraveltime = document.querySelector('friday-travel-times');
+                fridaytraveltime.currentlocation = userCurrentLocation;
+                fridaytraveltime.homelocations = userHomeLocations;
+                fridaytraveltime.worklocations = userWorkLocations;
+                fridaytraveltime.favoritelocations = userFavoriteLocations;
+            }
+        });		
+    });
+        
+    addTrafficLayer = function(map)
+    {
+        // trafficLayer is a global variable       
+        var mapsAPI = document.querySelector('google-maps-api');
+        trafficLayer = new mapsAPI.api.TrafficLayer();
+        
+        var trafficLayerControl = document.getElementById("trafficLayerControl");
+        
+        mapsAPI.api.event.addDomListener(trafficLayerControl, 'click', function()
+       	{
+            if (typeof trafficLayer.getMap() == 'undefined'
+                    || trafficLayer.getMap() === null)
+            {
+                trafficLayer.setMap(map);
+            }
+            else
+            {
+                trafficLayer.setMap(null);
+            }
+        });        
+    }
+    
+
+    addWeatherLayer = function(map)
+    {
+        // Google removed the weather and clouds layers, so this needs to be re-thought
+    }
+    
+    centerMapAtUserLocation = function()
+    {
+        var mapsAPI = document.querySelector('google-maps-api');
+
+	    if (userCurrentLocation != null)
+	    {
+	        var clatitude = userCurrentLocation.lat;
+	        var clongitude = userCurrentLocation.lon;
+	        
+		    var newCenter = new mapsAPI.api.LatLng(clatitude, clongitude);
+		    googleMap.setCenter(newCenter); 
+	    }       
+    }
+    
+    selectTab = function(tabname)
+    {        
+        if (tabname == "today")
+        {
+            trafficLayer.setMap(null);            
+        }
+        else if (tabname == "tasks")
+        {
+            trafficLayer.setMap(null);            
+        }
+        else if (tabname == "contacts")
+        {
+            trafficLayer.setMap(null);            
+        }
+        else if (tabname == "news")
+        {
+            trafficLayer.setMap(null);            
+        }
+        else if (tabname == "weather")
+        {
+            trafficLayer.setMap(null);            
+        }
+        else if (tabname == "traffic")
+        {
+            // trafficLayer is a global variable
+            trafficLayer.setMap(googleMap);            
+        }        
+    }
+    
+    showSpinner = function()
+    {
+        spinnerDiv.style.display = "block";
+        spinnerDiv.style.zIndex = "5";
+		spinner.play();        
+    }
+    
+    hideSpinner = function()
+    {
+        spinnerDiv.style.display = "none";
+	    spinner.stop();
+    }
+</script>
+</dom-module>

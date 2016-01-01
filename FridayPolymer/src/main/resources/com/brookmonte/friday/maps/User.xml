@@ -1,0 +1,419 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2010 The myBatis Team Licensed under the Apache License, Version 
+	2.0 (the "License"); you may not use this file except in compliance with 
+	the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 
+	Unless required by applicable law or agreed to in writing, software distributed 
+	under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES 
+	OR CONDITIONS OF ANY KIND, either express or implied. See the License for 
+	the specific language governing permissions and limitations under the License. -->
+
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+    
+<mapper namespace="com.brookmonte.friday.maps.UserDao">
+
+	<resultMap id="userResultMap" type="FridayUser">
+		<result property="userId" column="USER_ID" />
+		<result property="userName" column="USER_NAME" />
+		<result property="firstName" column="FIRST_NAME" />
+		<result property="lastName" column="LAST_NAME" />
+		<result property="password" column="PASSWORD" />
+		<result property="enabled" column="ENABLED" />
+		<result property="temporaryPassword" column="TEMPORARY_PASSWORD" />
+
+	    <collection property="homeLocations" javaType="ArrayList" column="USER_ID" ofType="FridayLocation" select="selectHomeLocationsForUser"/>
+	    
+	    <collection property="workLocations" javaType="ArrayList" column="USER_ID" ofType="FridayLocation" select="selectWorkLocationsForUser"/>
+	    
+	   	<collection property="favoriteLocations" javaType="ArrayList" column="USER_ID" ofType="FridayLocation" select="selectFavoriteLocationsForUser"/>
+	    
+	   	<collection property="emailAddresses" javaType="ArrayList" column="USER_ID" ofType="FridayEmailDefinition" select="selectEmailDefinitionsForUser"/>
+	    
+	   	<collection property="phoneNumbers" javaType="ArrayList" column="USER_ID" ofType="FridayPhoneDefinition" select="selectPhoneNumbersForUser"/>
+	</resultMap>
+	
+	<resultMap type="UserPreference" id="userPreferenceResultMap">
+	    <result property="userId" column="USER_ID" />
+	    <result property="userPreferenceId" column="USER_PREFERENCE_ID" />
+	    <result property="preferenceId" column="PREFERENCE_ID" />
+	    <result property="preferenceName" column="PREFERENCE_NAME" />
+	    <result property="preferenceType" column="PREFERENCE_TYPE" />
+	    <result property="description" column="DESCRIPTION" />
+	    <result property="defaultValue" column="DEFAULT_VALUE" />
+	    <result property="preferenceValue" column="PREFERENCE_VALUE" />
+	</resultMap>
+
+	<select id="getUserPreferences" parameterType="java.lang.String" resultMap="userPreferenceResultMap">
+		select
+			up.USER_ID					AS USER_ID,
+			up.USER_PREFERENCE_ID		AS USER_PREFERENCE_ID,
+			p.PREFERENCE_ID				AS PREFERENCE_ID,
+			p.PREFERENCE_NAME			AS PREFERENCE_NAME,
+			p.PREFERENCE_TYPE			AS PREFERENCE_TYPE,
+			p.DESCRIPTION				AS DESCRIPTION,
+			p.DEFAULT_VALUE				AS DEFAULT_VALUE,
+			up.PREFERENCE_VALUE			AS PREFERENCE_VALUE
+		from
+			friday.FRIDAY_PREFERENCE p
+		left join
+			friday.FRIDAY_USER_PREFERENCE up
+		on p.PREFERENCE_ID = up.PREFERENCE_ID
+		and p.PREFERENCE_TYPE = 'USER'
+		and up.USER_ID = #{userId}
+		order by p.PREFERENCE_ORDER asc
+	</select>
+	
+	<insert id="insertUserPreference">
+		INSERT INTO friday.FRIDAY_USER_PREFERENCE
+		(USER_PREFERENCE_ID,
+		USER_ID,
+		PREFERENCE_ID,
+		PREFERENCE_VALUE)
+		VALUES
+		(#{userPreferenceId},
+		#{userId},
+		(select PREFERENCE_ID from friday.FRIDAY_PREFERENCE where PREFERENCE_NAME = #{preferenceName}),
+		#{preferenceValue})	
+	</insert>
+	
+	<update id="updateUserPreference">
+		UPDATE friday.FRIDAY_USER_PREFERENCE
+		SET
+		PREFERENCE_VALUE = #{preferenceValue}
+		WHERE USER_PREFERENCE_ID = #{userPreferenceId}
+		AND USER_ID = #{userId}
+	</update>
+	
+	<delete id="deletePreferencesForUser">
+		DELETE FROM friday.FRIDAY_USER_PREFERENCE
+		WHERE USER_ID = #{userId}	
+	</delete>
+
+
+	<select id="getUserByName" parameterType="java.lang.String" resultMap="userResultMap">
+		select
+			u.USER_ID						AS USER_ID,
+			u.USER_NAME						AS USER_NAME,
+			u.FIRST_NAME					AS FIRST_NAME,
+			u.LAST_NAME						AS LAST_NAME,
+			u.PASSWORD						AS PASSWORD,
+			u.ENABLED						AS ENABLED,
+			u.TEMPORARY_PASSWORD			AS TEMPORARY_PASSWORD
+		from friday.FRIDAY_USER u
+		where u.USER_NAME = #{userName}
+	 </select>
+  	
+	<insert id="insertNewUser">
+		insert into friday.FRIDAY_USER (
+			USER_ID,
+			USER_NAME,
+			FIRST_NAME,
+			LAST_NAME,
+			PASSWORD,
+			ENABLED,
+			TEMPORARY_PASSWORD)
+		values (#{userId}, #{userName}, #{firstName}, #{lastName}, #{password}, '1', '0')	
+	</insert>
+	
+	<update id="updateUser">
+		update friday.FRIDAY_USER set
+			USER_NAME = #{userName},
+			FIRST_NAME = #{firstName},
+			LAST_NAME = #{lastName},
+			PASSWORD = #{password},
+			ENABLED = #{enabled},
+			TEMPORARY_PASSWORD = #{temporaryPassword}
+		where USER_ID = #{userId}	
+	</update>
+	
+	<delete id="deleteUser">
+		delete from friday.FRIDAY_USER where USER_ID = #{userId}
+	</delete>
+
+	<!-- LOCATION -->
+	<select id="selectHomeLocationsForUser" parameterType="java.lang.String" resultType="FridayLocation">
+		select
+			fl.LOCATION_ID											AS locationId,
+			fl.USER_ID												AS userId,
+			fl.NAME													AS name,
+			fl.STREET_ADDRESS1										AS streetAddress1,
+			fl.STREET_ADDRESS2										AS streetAddress2,
+			fl.CITY													AS city,
+			fl.COUNTY												AS county,
+			fl.STATE_PROVINCE										AS state,
+			fl.STATE_ABBREVIATION									AS stateAbbreviation,
+			fl.COUNTRY												AS country,
+			fl.COUNTRY_ABBREVIATION									AS countryAbbreviation,
+			fl.FORMATTED_ADDRESS									AS formattedAddress,
+			fl.GOOGLE_PLACE_ID										AS googlePlaceId,
+			fl.GOOGLE_REFERENCE_ID									AS googleReferenceId,
+			fl.UTC_OFFSET_MINUTES									AS utcOffsetMinutes,
+			fl.LATITUDE												AS lat,
+			fl.LONGITUDE											AS lon,
+			fl.POSTALCODE											AS postalCode,
+			fl.SIDE_OF_STREET										AS sideOfStreet,
+			fl.GEOCODE_QUALITY										AS geocodeQuality,
+			fl.GEOCODE_QUALITY_CODE									AS geocodeQualityCode,
+			fl.PROVIDED_LOCATION									AS providedLocation,
+			(select flt.LOCATION_TYPE_NAME
+				from friday.FRIDAY_LOCATION_TYPE flt
+				where flt.LOCATION_TYPE_ID = fl.LOCATION_TYPE_ID)	AS locationType			
+		from friday.FRIDAY_LOCATION fl
+		where fl.USER_ID = #{userId}
+		and fl.LOCATION_TYPE_ID =
+			(select flt.LOCATION_TYPE_ID
+			from friday.FRIDAY_LOCATION_TYPE flt
+			where flt.LOCATION_TYPE_NAME = 'HOME')
+	</select>
+	
+	<select id="selectWorkLocationsForUser" parameterType="java.lang.String" resultType="FridayLocation">
+		select
+			fl.LOCATION_ID											AS locationId,
+			fl.USER_ID												AS userId,
+			fl.NAME													AS name,
+			fl.STREET_ADDRESS1										AS streetAddress1,
+			fl.STREET_ADDRESS2										AS streetAddress2,
+			fl.CITY													AS city,
+			fl.COUNTY												AS county,
+			fl.STATE_PROVINCE										AS state,
+			fl.STATE_ABBREVIATION									AS stateAbbreviation,
+			fl.COUNTRY												AS country,
+			fl.COUNTRY_ABBREVIATION									AS countryAbbreviation,
+			fl.FORMATTED_ADDRESS									AS formattedAddress,
+			fl.GOOGLE_PLACE_ID										AS googlePlaceId,
+			fl.GOOGLE_REFERENCE_ID									AS googleReferenceId,
+			fl.UTC_OFFSET_MINUTES									AS utcOffsetMinutes,
+			fl.LATITUDE												AS lat,
+			fl.LONGITUDE											AS lon,
+			fl.POSTALCODE											AS postalCode,
+			fl.SIDE_OF_STREET										AS sideOfStreet,
+			fl.GEOCODE_QUALITY										AS geocodeQuality,
+			fl.GEOCODE_QUALITY_CODE									AS geocodeQualityCode,
+			fl.PROVIDED_LOCATION									AS providedLocation,
+			(select flt.LOCATION_TYPE_NAME
+				from friday.FRIDAY_LOCATION_TYPE flt
+				where flt.LOCATION_TYPE_ID = fl.LOCATION_TYPE_ID)	AS locationType			
+		from friday.FRIDAY_LOCATION fl
+		where fl.USER_ID = #{userId}
+		and fl.LOCATION_TYPE_ID =
+			(select flt.LOCATION_TYPE_ID
+			from friday.FRIDAY_LOCATION_TYPE flt
+			where flt.LOCATION_TYPE_NAME = 'WORK')
+	</select>
+	
+	<select id="selectFavoriteLocationsForUser" parameterType="java.lang.String" resultType="FridayLocation">
+		select
+			fl.LOCATION_ID											AS locationId,
+			fl.USER_ID												AS userId,
+			fl.NAME													AS name,
+			fl.STREET_ADDRESS1										AS streetAddress1,
+			fl.STREET_ADDRESS2										AS streetAddress2,
+			fl.CITY													AS city,
+			fl.COUNTY												AS county,
+			fl.STATE_PROVINCE										AS state,
+			fl.STATE_ABBREVIATION									AS stateAbbreviation,
+			fl.COUNTRY												AS country,
+			fl.COUNTRY_ABBREVIATION									AS countryAbbreviation,
+			fl.FORMATTED_ADDRESS									AS formattedAddress,
+			fl.GOOGLE_PLACE_ID										AS googlePlaceId,
+			fl.GOOGLE_REFERENCE_ID									AS googleReferenceId,
+			fl.UTC_OFFSET_MINUTES									AS utcOffsetMinutes,
+			fl.LATITUDE												AS lat,
+			fl.LONGITUDE											AS lon,
+			fl.POSTALCODE											AS postalCode,
+			fl.SIDE_OF_STREET										AS sideOfStreet,
+			fl.GEOCODE_QUALITY										AS geocodeQuality,
+			fl.GEOCODE_QUALITY_CODE									AS geocodeQualityCode,
+			fl.PROVIDED_LOCATION									AS providedLocation,
+			(select flt.LOCATION_TYPE_NAME
+				from friday.FRIDAY_LOCATION_TYPE flt
+				where flt.LOCATION_TYPE_ID = fl.LOCATION_TYPE_ID)	AS locationType			
+		from friday.FRIDAY_LOCATION fl
+		where fl.USER_ID = #{userId}
+		and fl.LOCATION_TYPE_ID =
+			(select flt.LOCATION_TYPE_ID
+			from friday.FRIDAY_LOCATION_TYPE flt
+			where flt.LOCATION_TYPE_NAME = 'FAVORITE')
+	</select>
+		
+	<insert id="insertLocation">
+		insert into friday.FRIDAY_LOCATION (
+			LOCATION_ID,
+			USER_ID,
+			NAME,
+			STREET_NUMBER,
+			STREET_ADDRESS1,
+			STREET_ADDRESS2,
+			CITY,
+			COUNTY,
+			STATE_PROVINCE,
+			STATE_ABBREVIATION,
+			COUNTRY,
+			COUNTRY_ABBREVIATION,
+			FORMATTED_ADDRESS,
+			GOOGLE_PLACE_ID,
+			GOOGLE_REFERENCE_ID,
+			UTC_OFFSET_MINUTES,
+			LATITUDE,
+			LONGITUDE,
+			POSTALCODE,
+			SIDE_OF_STREET,
+			GEOCODE_QUALITY,
+			GEOCODE_QUALITY_CODE,
+			PROVIDED_LOCATION,
+			LOCATION_TYPE_ID)
+		values (
+			#{locationId},
+			#{userId},
+			#{name},
+			#{streetNumber},
+			#{streetAddress1},
+			#{streetAddress2},
+			#{city},
+			#{county},
+			#{state},
+			#{stateAbbreviation},
+			#{country},
+			#{countryAbbreviation},
+			#{formattedAddress},
+			#{googlePlaceId},
+			#{googleReferenceId},
+			#{utcOffsetMinutes},
+			#{lat},
+			#{lon},
+			#{postalCode},
+			#{sideOfStreet},
+			#{geocodeQuality},
+			#{geocodeQualityCode},
+			#{providedLocation},
+			(select flt.LOCATION_TYPE_ID
+				from friday.FRIDAY_LOCATION_TYPE flt
+				where flt.LOCATION_TYPE_NAME = #{locationType})		
+		)	
+	</insert>
+
+	<!-- update location with given locationId; userId cannot be changed -->	
+	<update id="updateLocation">
+		update friday.FRIDAY_LOCATION set
+			NAME = #{name},
+			STREET_NUMBER = #{streetNumber},
+			STREET_ADDRESS1 = #{streetAddress1},
+			STREET_ADDRESS2 = #{streetAddress2},
+			CITY = #{city},
+			COUNTY = #{county},
+			STATE_PROVINCE = #{state},
+			STATE_ABBREVIATION = #{stateAbbreviation},
+			COUNTRY = #{country},
+			COUNTRY_ABBREVIATION = #{countryAbbreviation},
+			FORMATTED_ADDRESS = #{formattedAddress},
+			GOOGLE_PLACE_ID = #{googlePlaceId},
+			GOOGLE_REFERENCE_ID = #{googleReferenceId},
+			UTC_OFFSET_MINUTES = #{utcOffsetMinutes},
+			LATITUDE = #{lat},
+			LONGITUDE = #{lon},
+			POSTALCODE = #{postalCode},
+			SIDE_OF_STREET = #{sideOfStreet},
+			GEOCODE_QUALITY = #{geocodeQuality},
+			GEOCODE_QUALITY_CODE = #{geocodeQualityCode},
+			PROVIDED_LOCATION = #{providedLocation},
+			LOCATION_TYPE_ID = (select flt.LOCATION_TYPE_ID
+				from friday.FRIDAY_LOCATION_TYPE flt
+				where flt.LOCATION_TYPE_NAME = #{locationType})
+		where LOCATION_ID = #{locationId}		
+	</update>
+	
+	<delete id="deleteLocation">
+		delete from friday.FRIDAY_LOCATION where LOCATION_ID = #{locationId}
+	</delete>
+	
+	<delete id="deleteAllLocationsForUser">
+		delete from friday.FRIDAY_LOCATION where USER_ID = #{userId}
+	</delete>
+	
+	<!-- EMAIL -->
+	<select id="selectEmailDefinitionsForUser" resultType="FridayEmailDefinition">
+		select
+			um.USER_EMAIL_ID		AS userEmailId,
+			um.USER_ID				AS userId,
+			um.EMAIL_ADDRESS		AS emailAddress,
+			um.PRIMARY_EMAIL		AS isPrimaryEmail
+		from friday.FRIDAY_USER_EMAIL um
+		where um.USER_ID = #{userId}
+	</select>
+	
+	<insert id="insertEmailDefinition">
+		insert into `friday`.`FRIDAY_USER_EMAIL` (
+			USER_EMAIL_ID,
+			USER_ID,
+			EMAIL_ADDRESS,
+			PRIMARY_EMAIL)
+		values (#{userEmailId}, #{userId}, #{emailAddress}, #{primaryEmail})
+	</insert>
+	
+	<update id="updateEmailDefinition">
+		update friday.FRIDAY_USER_EMAIL set
+			EMAIL_ADDRESS = #{emailAddress},
+			PRIMARY_EMAIL = #{primaryEmail}
+		where USER_EMAIL_ID = #{userEmailId}		
+	</update>
+	
+	<delete id="deleteEmailDefinition">
+		delete from friday.FRIDAY_USER_EMAIL where USER_EMAIL_ID = #{userEmailId}
+	</delete>
+	
+	<delete id="deleteAllEmailForUser">
+		delete from friday.FRIDAY_USER_EMAIL where USER_ID = #{userId}		
+	</delete>
+	
+	<!-- PHONE NUMBER -->
+	<select id="selectPhoneNumbersForUser" resultType="FridayPhoneDefinition">
+		SELECT
+			fpd.PHONE_DEFINITION_ID								AS phoneDefinitionId,
+			fpd.USER_ID											AS userId,
+			fpd.COUNTRYCODE										AS countryCode,
+			fpd.AREACODE										AS areaCode,
+			fpd.NUMBER											AS phoneNumber,
+			fpd.EXTENSION										AS phoneExtension,
+			fpd.FORMATTED_PHONE_NUMBER							AS formattedPhoneNumber,
+			fpd.INTERNATIONAL_PHONE_NUMBER						AS internationalPhoneNumber,
+			fpd.PHONE_SERVICE_PROVIDER							AS phoneServiceProvider,
+			fpd.SMS_ALLOWED										AS smsAllowed,
+			fpd.VOICE_ALERTS_ALLOWED							AS voiceAlertsAllowed,
+			(select fpt.PHONE_TYPE_NAME
+				from friday.FRIDAY_PHONE_TYPE fpt
+				where fpt.PHONE_TYPE_ID = fpd.PHONE_TYPE_ID)	AS phoneType
+		FROM `friday`.`FRIDAY_PHONE_DEFINITION` fpd
+		where fpd.USER_ID = #{userId}	
+	</select>
+	
+	<insert id="insertPhoneDefinition">
+		insert into `friday`.`FRIDAY_PHONE_DEFINITION`
+			(`PHONE_DEFINITION_ID`,
+			`USER_ID`,
+			`COUNTRYCODE`,
+			`AREACODE`,
+			`NUMBER`,
+			`EXTENSION`,
+			`FORMATTED_PHONE_NUMBER`,
+			`INTERNATIONAL_PHONE_NUMBER`,
+			`PHONE_SERVICE_PROVIDER`,
+			`SMS_ALLOWED`,
+			`VOICE_ALERTS_ALLOWED`,
+			`PHONE_TYPE_ID`)
+		values (
+			#{phoneDefinitionId},
+			#{phoneUserId},
+			#{countryCode},
+			#{areaCode},
+			#{phoneNumber},
+			#{phoneExtension},
+			#{formattedPhoneNumber},
+			#{internationalPhoneNumber},
+			#{phoneServiceProvider},
+			#{smsAllowed},
+			#{voiceAlertsAllowed},
+			(select PHONE_TYPE_ID from friday.FRIDAY_PHONE_TYPE where PHONE_TYPE_NAME = #{phoneType}));
+	</insert>
+	
+</mapper>
