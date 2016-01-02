@@ -3,6 +3,8 @@
   
   <!-- Non-Polymer JS libraries -->  
   <script src="../js/bower_components/moment/moment.js" th:src="@{../js/bower_components/moment/moment.js}"></script>
+  <script src="../js/bower_components/moment-duration-format/lib/moment-duration-format.js" th:src="@{../js/bower_components/moment-duration-format/lib/moment-duration-format.js}"></script>
+
   <script src="../js/bower_components/jquery-cycle2/build/jquery.cycle2.min.js" th:src="@{../js/bower_components/jquery-cycle2/build/jquery.cycle2.min.js}"></script>
   <script src="../js/bower_components/x-editable/dist/jqueryui-editable/js/jqueryui-editable.min.js" th:src="@{../js/bower_components/x-editable/dist/jqueryui-editable/js/jqueryui-editable.min.js}"></script>
 
@@ -49,7 +51,7 @@
     font: normal normal 16px Calibri, sans-serif;
   }
 </style>
-<div id="eventDialogContainer" style="position: relative; top: 0px;" style="display:none; overflow:hidden">
+<div id="eventDialogContainer" style="position: relative; top: 0px; display:none; overflow:hidden">
   <table>
     <tbody>
       <tr>
@@ -189,7 +191,16 @@
           <table>
             <tbody>
               <tr>
-                <td></td>
+                <td>
+                <td class="itemLabelCell">
+                  <span class="itemLabel">Once</span>
+                </td>
+                <td style="text-align: left;">
+                  <input type="radio" id="oneTimeRadio" name="repeatRadioGroup" class="eventInputEventTitleRadio" style="height: 12px; width: 12px; border: 0px; color: blue;">
+                  <span id="oneTimeDateTimeSpan" class="eventInputEventTitleInput" style="margin-left: 10px;"></span>
+                </td>
+                
+                </td>
               </tr>
             </tbody>
           </table>        
@@ -263,14 +274,33 @@
       
       showEventDialog : function(startDate, endDate, allDay)
       {
-          alert(startDate);
-          alert(endDate);
-          
-          jQuery("#startDateAnchor").html(startDate);
-          jQuery("#endDateAnchor").html(endDate);
+          jQuery("#startDateAnchor").html(startDate.format("MMM-D-YYYY h:mmA"));
+          jQuery("#endDateAnchor").html(endDate.format("MMM-D-YYYY h:mmA"));
           
           jQuery("#startDateAnchor").editable();
           jQuery("#endDateAnchor").editable();
+          
+          var eventDuration = moment.duration(endDate.diff(startDate));
+          
+          var durationMinutes = eventDuration.asMinutes();
+          var durationString = "";
+          
+          if (durationMinutes > 119)
+          {
+              durationString = eventDuration.format("h [hours] m [minutes]");
+          }
+          else
+          {
+              durationString = eventDuration.format("h [hour] m [minutes]");
+          }
+          
+          jQuery("#oneTimeDateTimeSpan").html("on "
+                  + startDate.format("MMM-D-YYYY")
+                  + " from "
+                  + startDate.format("h:mmA")
+                  + " to "
+                  + endDate.format("h:mmA")
+                  + " (" + durationString + ")");
           
           jQuery("#eventDialogContainer").dialog(
           {
@@ -299,7 +329,7 @@
                        ]        
           });
       },
-      
+      timezone: false,
       updateEventDisplay : function()
       {        
       }      

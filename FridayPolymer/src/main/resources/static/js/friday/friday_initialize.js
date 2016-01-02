@@ -150,7 +150,14 @@ function initializeDailyCalendar()
         },
         select : function(startDate, endDate, allDay, jsEvent, view)
         {
-            showEventInputDialog(startDate, endDate, allDay);
+            var startMom = moment(startDate);
+            var endMom = moment(endDate);
+            
+            if (!startMom.isSame(endMom))
+            {
+                showEventInputDialog(startMom, endMom, allDay);
+            }
+            
         },
         eventRender : function(event, element, view)
         {
