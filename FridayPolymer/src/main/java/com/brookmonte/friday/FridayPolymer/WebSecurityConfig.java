@@ -6,7 +6,6 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.annotation.web.servlet.configuration.EnableWebMvcSecurity;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import com.brookmonte.friday.FridayPolymer.domain.admin.FridayAuthenticationProvider;
@@ -20,7 +19,6 @@ import com.brookmonte.friday.FridayPolymer.domain.admin.FridayAuthenticationProv
  *
  */
 @Configuration
-@EnableWebMvcSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter
 {
     @Autowired
@@ -33,8 +31,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter
     protected void configure(HttpSecurity http) throws Exception
     {
         http.headers().disable()
-        .headers()
-        .frameOptions().cacheControl().httpStrictTransportSecurity().xssProtection();                  
+        .headers().cacheControl()
+        .and().httpStrictTransportSecurity()
+        .and().frameOptions()
+        .and().xssProtection();                  
         
         http.authorizeRequests()               
             .antMatchers("/, /home")

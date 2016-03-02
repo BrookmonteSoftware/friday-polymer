@@ -50,6 +50,118 @@
     color: #5B9BD5;
     font: normal normal 16px Calibri, sans-serif;
   }
+  
+  .eventInputEventLocationLabel
+  {
+    font: bold normal 14px Calibri, sans-serif;
+    color: #5B9BD5;
+    margin-right: 10px;    
+  }
+  
+  .eventInputStartDateLabel
+  {
+    font: bold normal 14px Calibri, sans-serif;
+    color: #5B9BD5;
+    margin-right: 10px;
+    vertical-align: top;  
+  }
+  
+  .eventInputEventTitle
+  {
+    font: normal normal 16px Calibri, sans-serif !important;  
+    color: #5B9BD5 !important;  
+  }
+  
+  .eventInputEventTitleInput
+  {
+    font: normal normal 14px Calibri, sans-serif !important;  
+    color: #5B9BD5 !important;
+    border: none;  
+  }
+  
+  .eventInputEventTitleRadio
+  {
+    font: normal normal 14px Calibri, sans-serif !important;  
+    color: #5B9BD5 !important;
+    border: 0px;  
+  }
+  
+  .eventInputEventDescrLabel
+  {
+    font: normal normal 16px Calibri, sans-serif;
+    color: #5B9BD5;
+    margin-right: 6px;
+    vertical-align: top;  
+  }
+  
+  .eventInputEventDescr
+  {
+    font: normal normal 14px Calibri, sans-serif !important;
+    color: #5B9BD5 !important;
+    resize: none;  
+  }
+  
+  .monthTable
+  {
+    font: normal normal 14px Calibri, sans-serif;
+    color: #5B9BD5;
+    border: 1px solid #5B9BD5;
+    border-collapse: collapse;
+    margin-left: 30px;
+  }
+  
+  .mtd
+  {
+    font: bold normal 14px Calibri, sans-serif;
+    color: #5B9BD5;
+    border: 1px solid #5B9BD5;
+    padding: 2px;
+    cursor: pointer;
+    text-align: center;
+  }
+  
+  .mtdSelected
+  {
+    font: bold normal 14px Calibri, sans-serif;
+    color: #FFFFFF;
+    background: #ED7D31;
+    border: 1px solid #5B9BD5;
+    padding: 2px;
+    cursor: pointer;
+    text-align: center;  
+  }
+  
+  .mdtd
+  {
+    font: bold normal 14px Calibri, sans-serif;
+    color: #5B9BD5;
+    border: 1px solid #5B9BD5;
+    padding: 2px;
+    cursor: pointer;
+    width: 25px;
+    text-align: center;
+  }
+  
+  .mdtdSelected
+  {
+    font: bold normal 14px Calibri, sans-serif;
+    color: #FFFFFF;
+    background: #ED7D31;
+    border: 1px solid #5B9BD5;
+    padding: 2px;
+    cursor: pointer;
+    text-align: center;  
+  }
+  
+  .mtdLabel
+  {
+    font: bold italic 14px Calibri, sans-serif;
+    color: #5B9BD5;
+    border: 1px solid #5B9BD5;
+    padding: 2px;
+    cursor: pointer;
+  }
+  
 </style>
 <div id="eventDialogContainer" style="position: relative; top: 0px; display:none; overflow:hidden">
   <table>
@@ -75,7 +187,8 @@
                     <option value="CONCERT">CONCERT</option>
                     <option value="MOVIE">MOVIE</option>
                     <option value="PLAY">PLAY</option>
-                    <option value="OTHER">OTHER</option></select>
+                    <option value="OTHER">OTHER</option>
+                  </select>
                 </td>
               </tr>
               <tr>
@@ -199,9 +312,128 @@
                   <input type="radio" id="oneTimeRadio" name="repeatRadioGroup" class="eventInputEventTitleRadio" style="height: 12px; width: 12px; border: 0px; color: blue;">
                   <span id="oneTimeDateTimeSpan" class="eventInputEventTitleInput" style="margin-left: 10px;"></span>
                 </td>
-                
+              </tr>
+              <tr>
+                <td>
+                <td class="itemLabelCell">
+                  <span class="itemLabel">Repeating</span>
+                </td>
+                <td style="text-align: left;">
+                  <input type="radio" id="repeatDailyRadio" name="repeatRadioGroup" class="eventInputEventTitleRadio" style="height: 12px; width: 12px;">
+                  <span class="eventInputEventLocationLabel" style="vertical-align: middle; position: relative; top: -5px;">Every</span>
+                  <input type="text" id="taskDayCountInput" class="eventInputEventTitleInput" size="2" value="1" disabled="disabled">
+                  <span class="eventInputEventLocationLabel" style="vertical-align: middle; position: relative; top: -5px;">  day(s)</span>
                 </td>
               </tr>
+              <tr>
+                <td>
+                <td class="itemLabelCell">
+                  <span class="itemLabel">&nbsp;</span>
+                </td>
+                <td style="text-align: left;">
+                  <input type="radio" id="repeatWeeklyRadio" name="repeatRadioGroup" class="eventInputEventTitleRadio" style="height: 12px; width: 12px;">
+                  <span class="eventInputEventLocationLabel" style="vertical-align: middle; position: relative; top: -5px;">Every</span>
+                  <input type="text" id="taskDayCountInput" class="eventInputEventTitleInput" size="2" value="1" disabled="disabled">
+                  <span class="eventInputEventLocationLabel" style="vertical-align: middle; position: relative; top: -5px;">  week(s) on:</span>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <span class="eventInputSectionLabel">&nbsp;</span>
+                </td>
+                <td style="text-align: left;">
+                  <span>&nbsp;</span>
+                </td>
+                <td style="text-align: left;">
+                  <input type="checkbox" id="sundayChk" name="sundayChk" class="eventInputEventTitleInput" style="height: 12px; width: 12px; margin-left: 30px;">
+                  <span class="eventInputEventLocationLabel" style="vertical-align: middle; position: relative; top: -5px;"> Sun</span>
+                  <input type="checkbox" id="mondayChk" name="mondayChk" class="eventInputEventTitleInput" style="height: 12px; width: 12px;">
+                  <span class="eventInputEventLocationLabel" style="vertical-align: middle; position: relative; top: -5px;"> Mon</span>
+                  <input type="checkbox" id="tuesdayChk" name="tuesdayChk" class="eventInputEventTitleInput" style="height: 12px; width: 12px;">
+                  <span class="eventInputEventLocationLabel" style="vertical-align: middle; position: relative; top: -5px;"> Tue</span>
+                  <input type="checkbox" id="wednesdayChk" name="wednesdayChk" class="eventInputEventTitleInput" style="height: 12px; width: 12px;">
+                  <span class="eventInputEventLocationLabel" style="vertical-align: middle; position: relative; top: -5px;"> Wed</span>
+                  <input type="checkbox" id="thursdayChk" name="thursdayChk" class="eventInputEventTitleInput" style="height: 12px; width: 12px;">
+                  <span class="eventInputEventLocationLabel" style="vertical-align: middle; position: relative; top: -5px;"> Thu</span>
+                  <input type="checkbox" id="fridayChk" name="fridayChk" class="eventInputEventTitleInput" style="height: 12px; width: 12px;">
+                  <span class="eventInputEventLocationLabel" style="vertical-align: middle; position: relative; top: -5px;"> Fri</span>
+                  <input type="checkbox" id="saturdayChk" name="saturdayChk" class="eventInputEventTitleInput" style="height: 12px; width: 12px;">
+                  <span class="eventInputEventLocationLabel" style="vertical-align: middle; position: relative; top: -5px;"> Sat</span>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                <td class="itemLabelCell">
+                  <span class="itemLabel">&nbsp;</span>
+                </td>
+                <td style="text-align: left;">
+                  <input type="radio" id="repeatMonthlyRadio" name="repeatRadioGroup" class="eventInputEventTitleRadio" style="height: 12px; width: 12px;">
+                  <span class="eventInputEventLocationLabel" style="vertical-align: middle; position: relative; top: -5px;">Every</span>
+                  <input type="text" id="taskDayCountInput" class="eventInputEventTitleInput" size="2" value="1" disabled="disabled">
+                  <span class="eventInputEventLocationLabel" style="vertical-align: middle; position: relative; top: -5px;">  month(s) on these days of the month:</span>
+                </td>
+              </tr>
+              
+              <tr>
+                <td>
+                  <span class="eventInputSectionLabel">&nbsp;</span>
+                </td>
+                <td style="text-align: left;">
+                  <span>&nbsp;</span>
+                </td>
+                <td style="text-align: left;">
+                  <div id="monthTableDiv" style="display: block;">
+                    <table>
+                      <tbody>
+                        <tr>
+                          <td>
+                            <table id="monthTable" class="monthTable">
+                              <tbody id="monthTableBody">
+                                <tr>
+                                  <td class="mtd">1</td><td class="mtd">2</td><td class="mtd">3</td><td class="mtd">4</td><td class="mtd">5</td><td class="mtd">6</td><td class="mtd">7</td>
+                                </tr>
+                                <tr>
+                                  <td class="mtd">8</td><td class="mtd">9</td><td class="mtd">10</td><td class="mtd">11</td><td class="mtd">12</td><td class="mtd">13</td><td class="mtd">14</td>
+                                </tr>
+                                <tr>
+                                  <td class="mtd">15</td><td class="mtd">16</td><td class="mtd">17</td><td class="mtd">18</td><td class="mtd">19</td><td class="mtd">20</td><td class="mtd">21</td>
+                                </tr>
+                                <tr>
+                                  <td class="mtd">22</td><td class="mtd">23</td><td class="mtd">24</td><td class="mtd">25</td><td class="mtd">26</td><td class="mtd">27</td><td class="mtd">28</td>
+                                </tr>
+                                <tr>
+                                  <td class="mtd">29</td><td class="mtd">30</td><td class="mtd">31</td><td colspan="4" class="mtd">Last Day</td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </td>
+                          <td>
+                            <table class="monthTable" id="monthDayTable">
+                              <tbody id="monthDayTableBody">
+                                <tr>
+                                  <td class="mtdLabel">First</td><td class="mdtd">Sun</td><td class="mdtd">Mon</td><td class="mdtd">Tue</td><td class="mdtd">Wed</td><td class="mdtd">Thu</td><td class="mdtd">Fri</td><td class="mdtd">Sat</td>
+                                  </tr>
+                                <tr>
+                                  <td class="mtdLabel">Second</td><td class="mdtd">Sun</td><td class="mdtd">Mon</td><td class="mdtd">Tue</td><td class="mdtd">Wed</td><td class="mdtd">Thu</td><td class="mdtd">Fri</td><td class="mdtd">Sat</td>
+                                </tr>
+                                <tr>
+                                  <td class="mtdLabel">Third</td><td class="mdtd">Sun</td><td class="mdtd">Mon</td><td class="mdtd">Tue</td><td class="mdtd">Wed</td><td class="mdtd">Thu</td><td class="mdtd">Fri</td><td class="mdtd">Sat</td>
+                                </tr>
+                                <tr>
+                                  <td class="mtdLabel">Fourth</td><td class="mdtd">Sun</td><td class="mdtd">Mon</td><td class="mdtd">Tue</td><td class="mdtd">Wed</td><td class="mdtd">Thu</td><td class="mdtd">Fri</td><td class="mdtd">Sat</td>
+                                </tr>
+                                <tr>
+                                  <td class="mtdLabel">Last</td><td class="mdtd">Sun</td><td class="mdtd">Mon</td><td class="mdtd">Tue</td><td class="mdtd">Wed</td><td class="mdtd">Thu</td><td class="mdtd">Fri</td><td class="mdtd">Sat</td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </td>
+              </tr>                          
             </tbody>
           </table>        
         </td>      
@@ -293,6 +525,12 @@
           {
               durationString = eventDuration.format("h [hour] m [minutes]");
           }
+          
+          
+          jQuery("#taskDayCountInput").spinner({
+              min: 1,
+              max: 999
+          });
           
           jQuery("#oneTimeDateTimeSpan").html("on "
                   + startDate.format("MMM-D-YYYY")
