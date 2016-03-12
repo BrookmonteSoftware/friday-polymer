@@ -91,32 +91,30 @@ document.write(unescape("%3Cscript src='" + cotJsHost + "trustlogo/javascript/co
         </td>
       </tr>
     </table>
-    <div class="loginFooter" id="login-footer">
-
-      <table class="fridayTour">
+    <div id="login-footer">
+        <table style="width: 100%; position: relative; border: none; border-collapse: collapse; background-color: #5B9BD5; font: normal normal 16px Calibri, sans-serif; color: #ffffff; margin: 0px; padding: 0px;">
         <tbody style="margin: 0px; padding: 0px;">
           <tr style="margin: 0px; padding: 0px;">
             <td style="margin: 0px; padding: 0px;">
-                <img src="/images/Brookmonte-AMC.png" style="position: absolute; top: 0px; padding: 0px; height: 76px; margin-top: 0px; margin-left: -10px"/>
+                <img src="/images/Brookmonte-AMC.png" style="vertical-align: bottom; position: relative; top: 0px; border: 0px; padding: 0px; margin: 0px; height: 75px;"/>
             </td>          
-            <td style="text-align: center;"><nobr>
-                <span class="fridayVersion" id="fridayVersion">Friday Polymer 0.0.1.BUILD-SNAPSHOT</span>
-              </nobr></td>
-            <td style="width: 80%; text-align: center">
-              <a href="http://instantssl.com/ssl.html" style="position: relative; left: 350px; text-decoration: none;">
+            <td style="text-align: left; min-width: 200px;">
+                <span id="fridayVersion">&nbsp;Version:&nbsp;<span th:text="${@environment.getProperty('friday.version')}"></span></span>
+            </td>
+            <td style="width: 200px; text-align: center; border: 0px; padding: 0px; margin: 0px; ">
+              <a href="http://instantssl.com/ssl.html" style="text-decoration: none; border: 0px; padding: 0px; margin: 0px;">
               <img alt="SSL"
                 src="https://www.instantssl.com/ssl-certificate-images/support/comodo_secure_100x85_transp.png"
-                style="border: 0px; width: 60px; height: 40px;"></img>
-                <span
-                style="font-weight: bold; font-size: 18px; color: white; position: relative; top: -10px;">SSL</span>
-            </a></td>
-            <td style="width: 400px; min-width: 400px; max-width: 400px;">
-              <div class="fridayCopyright" id="fridayCopyright">My
-                Friday is copyright &copy; 2015, The Brookmonte Group. All rights
-                reserved.</div>
+                style="vertical-align: top; border: 0px; width: 54px; height: 36px; padding: 0px; margin: 0px;"></img>
+              </a>
             </td>
-            <td>
-              <span id="cdSiteSeal1">
+            <td style="width:350px; min-width: 350px; max-width: 350px; border: 0px; padding: 0px; margin: 0px;">
+              <div class="fridayCopyright" id="fridayCopyright"  style="border: 0px; padding: 0px; margin: 0px;">
+              My Friday is copyright &copy; 2016, The Brookmonte Group. All rights reserved.
+              </div>
+            </td>
+            <td style="border: 0px; padding: 0px; margin: 0px;">
+              <span id="cdSiteSeal1" style="border: 0px; padding: 0px; margin: 0px;">
               <script
                     type="text/javascript"
                     src="//tracedseals.starfieldtech.com/siteseal/get?scriptId=cdSiteSeal1&amp;cdSealType=Seal1&amp;sealId=55e4ye7y7mb73695d8ee7cbe0d8e1bx4794y7mb7355e4ye792e330a5857e21a0">
@@ -124,8 +122,8 @@ document.write(unescape("%3Cscript src='" + cotJsHost + "trustlogo/javascript/co
               </span>
             </td>
           </tr>
-        </tbody>
-      </table>
+          </tbody>
+        </table>
 
     </div>
   </div>

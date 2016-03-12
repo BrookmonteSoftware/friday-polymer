@@ -12,11 +12,14 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
 @SpringBootApplication
 @ComponentScan
+@PropertySource("classpath:application.properties")
 @Configuration
 public class FridayPolymerApplication
 {
@@ -102,4 +105,11 @@ public class FridayPolymerApplication
 
         return sessionFactory.getObject();
     }
+    
+
+    @Bean
+    public static PropertySourcesPlaceholderConfigurer placeholderConfigurer()
+    {
+        return new PropertySourcesPlaceholderConfigurer();
+    }   
 }

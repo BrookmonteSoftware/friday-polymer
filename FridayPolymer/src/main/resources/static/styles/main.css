@@ -37,10 +37,7 @@ My Friday Styles
 */
 
 #page-footer
-{
-  background-color:#5B9BD5;
-  min-height:80px;
-  height: 80px;      
+{      
 }  
 
 #page-header
@@ -295,9 +292,10 @@ friday-banner-menu
 {
   display: inline-block;
   position: relative;
-  height: 75px;
   width: 100%;
   background-color: #5B9BD5;
+  margin: 0px;
+  padding: 0px;  
 }
 
 .fridayTour
@@ -376,14 +374,10 @@ friday-banner-menu
 
 .fridayVersion
 {
-  position: relative;
-  top: 2px;
-  left: 400px;
   background-color: #5B9BD5;
   font: normal normal 14px Calibri, sans-serif;
   color: #ffffff;
   vertical-align: middle;
-  padding-left: 0px;
 }
 
 .fridayCopyright
@@ -407,8 +401,7 @@ friday-banner-menu
   height: 500px;
   border: 1px solid #5B9BD5;
   margin-top: 5px;
-  margin-bottom: 5px;
-  margin-left: 10px;
+  margin-bottom: 0px;
   padding: 15px;
 }
 
@@ -692,7 +685,7 @@ friday-banner-menu
   color: white;
   opacity: 0.9;
   padding: 5px;
-  margin-top: 15px;
+  margin-top: 0px;
   margin-left: 10px;
   margin-right: 10px;
   z-index: 2;

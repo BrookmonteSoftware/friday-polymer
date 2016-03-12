@@ -2,7 +2,7 @@
   
   <!-- Non-Polymer JS libraries -->  
   <script src="../js/bower_components/moment/moment.js" th:src="@{../js/bower_components/moment/moment.js}"></script>
-  <script src="../js/bower_components/jquery-cycle2/build/jquery.cycle2.min.js" th:src="@{../js/bower_components/jquery-cycle2/build/jquery.cycle2.min.js}"></script>
+  <script src="../js/bower_components/jquery-cycle2/build/jquery.cycle2.js" th:src="@{../js/bower_components/jquery-cycle2/build/jquery.cycle2.js}"></script>
 
 
   <!-- Friday application JS libraries -->
@@ -37,10 +37,10 @@
   </div>
   <div id="newsDivWrapper"
     style="position: relative; top: 0px; overflow-y: auto; overflow-x: hidden">
-    <div id="newsDiv" style="position: absolute; top: 0px"
-      data-cycle-pause-on-hover="true" data-cycle-pager=".customPager"></div>
+    <div id="fridayNewsDiv" style="position: absolute; top: 0px"
+      data-cycle-pause-on-hover="true"></div>
   </div>
-  <span id="customPager" class="customPager"></span>
+  <span id="fridayCustomPager" class="customPager"></span>
 </div>
 
 
@@ -64,15 +64,12 @@
       {                  
           // news request has to be proxied
           this.$.newsajax.url = getBaseLocation() + "/getNewsFeed?feedurls=" + encodeURIComponent(newsUrlList);          
-          
           this.$.newsajax.generateRequest();
       },
       hresponse : function(request)
       {
-          news = this.$.newsajax.lastResponse;
-          
-          //alert(news);
-          
+          news = null;
+          news = this.$.newsajax.lastResponse;         
           this.fire('news-changed',
           {
               newsChanged : true
@@ -87,6 +84,7 @@
       },
       ready: function()
       {
+          gettingNews = true;
           this.getNews();
       },
       listeners :
@@ -116,13 +114,13 @@
           var newsDivWrapper = jQuery("#newsDivWrapper");
           newsDivWrapper.height(cardHeight - 155);
           
-          var newsDiv = jQuery("#newsDiv");
+          var newsDiv = jQuery("#fridayNewsDiv");
           newsDiv.height(cardHeight - 155);
           newsDiv.width(cardWidth - 20);
       },
       _onNewsChange : function()
       {
-          this.updateNewsDisplay();
+          this.buildNewsDisplay();
 
           // after everything is received, parsed, and UI built,
           // new requests to get news data can be accepted
@@ -131,45 +129,54 @@
       
       refreshNews : function()
       {
+          if (gettingNews) return;
           gettingNews = true;
           var newsObj = document.querySelector('friday-news-reader');
           newsObj.getNews();
       },
       
-      updateNewsDisplay : function()
-      {
-          this.buildNewsDisplay();        
-      },
-
       buildNewsDisplay : function()
       {
-          var newsDiv = jQuery("#newsDiv");
+          var newsDiv = jQuery("#fridayNewsDiv");
           jQuery(newsDiv).cycle('destroy');
           newsDiv.empty();
           
-          var pager = jQuery("#customPager");
+          var pager = jQuery("#fridayCustomPager");
           pager.empty();
-          
-          var newsDivContainer = jQuery("#newsDivContainer");
           
           var progressSpan = document.createElement("span");
           newsDiv.append(progressSpan);
           progressSpan.className = "progressSpan";
           progressSpan.id = "progress";
-          
-          for (var i = 0; i < news[0].entries.length; i++)
-          {
-              var newSlide = news[0].entries[i].description.value;
-              newsDiv.append(newSlide);
-          }
-          
-          jQuery(newsDiv).cycle({
+                    
+          $("#fridayNewsDiv").cycle({
               fx:    'fade', 
               speed:  1000,
               timeout: 10000,
               slides: "table",
-              pagerTemplate: "<a href='#'> {{slideNum}} </a>"
+              //pagerTemplate: "<a href='#'> {{slideNum}} </a>",
+              //pager: "#customPager"
           });
+
+          for (var i = 0; i < news[0].entries.length; i++)
+          {
+              var newSlide = news[0].entries[i].description.value;
+              $("#fridayNewsDiv").cycle('add', newSlide);
+              
+              var pagerId = 'pager' + i;
+              $('#fridayCustomPager').append("<a href='#' id='" + pagerId + "'>" + (i + 1) + "</a>");
+              
+              var pagerDiv = jQuery('#' + pagerId);
+              
+              pagerDiv.on('click', function(e)
+              {
+                  var pagerIdx = this.id.substring('pager'.length);
+                  //alert(pagerIdx);
+                  $("#fridayNewsDiv").cycle('goto', pagerIdx);
+              });
+              
+          }
+          jQuery('#pager0').addClass('cycle-pager-active');
           
           var progress = jQuery('#progress');
           //var slideshow = jQuery(newsDiv);
@@ -179,16 +186,21 @@
               progress.stop(true).css( 'width', 0 );
           });
           
-          newsDiv.on( 'cycle-initialized cycle-after', function( e, opts )
+          newsDiv.on( 'cycle-initialized cycle-after', function( event, opts, outgoingSlideEl, incomingSlideEl, forwardFlag )
           {
               if ( ! newsDiv.is('.cycle-paused') )
+              {
                   progress.animate({ width: '100%' }, opts.timeout, 'linear' );
+              }
+
+              //alert(JSON.stringify(opts.nextSlide));
+              jQuery('#pager'+ opts.currSlide).removeClass('cycle-pager-active');
+              jQuery('#pager'+ opts.nextSlide).addClass('cycle-pager-active');
           });
           
           newsDiv.on( 'cycle-paused', function( e, opts )
           {
-             progress.stop();
-             
+             progress.stop();             
           });
           
           newsDiv.on( 'cycle-resumed', function( e, opts, timeoutRemaining )
