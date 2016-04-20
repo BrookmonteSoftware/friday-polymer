@@ -68,5 +68,32 @@ public class TrafficController
         {
             return "";
         }
+    }
+    
+    /**
+     * getTrafficAlertsXml
+     * @param northLat
+     * @param westLon
+     * @param southLat
+     * @param eastLon
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping("/getTrafficAlertsXml")
+    @ResponseBody
+    @PreAuthorize("isAuthenticated()")
+    public String getTrafficAlertsXml(@RequestParam("nLat") String northLat,
+            @RequestParam("wLon") String westLon,
+            @RequestParam("sLat") String southLat,
+            @RequestParam("eLon") String eastLon) throws Exception
+    {
+        try
+        {
+            return trafficManager.getTrafficAlertsRss(northLat, westLon, southLat, eastLon);
+        }
+        catch (Exception e)
+        {
+            return "";
+        }
     }    
 }

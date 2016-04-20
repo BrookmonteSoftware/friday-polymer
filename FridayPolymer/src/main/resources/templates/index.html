@@ -35,7 +35,9 @@ document.write(unescape("%3Cscript src='" + cotJsHost + "trustlogo/javascript/co
   var userWorkLocations = null;
   var userFavoriteLocations = null;
   var mapResized = false;
-	
+  
+  var googleMap = null;
+  
   window.addEventListener('WebComponentsReady', function(e)
   {
       var fridayApp = document.querySelector("friday-app");      
@@ -45,7 +47,7 @@ document.write(unescape("%3Cscript src='" + cotJsHost + "trustlogo/javascript/co
 </head>
 
 <body class="layout unresolved" style="margin: 10px; padding: 0px">
-  <friday-app></friday-app>
+  <friday-app id="fridayApp"></friday-app>
   <a href="http://www.instantssl.com" id="comodoTL">SSL Certificate Authority</a>
   <script type="text/javascript">
     COT("https://www.myfriday.info/images/cot.gif", "SC2", "none");

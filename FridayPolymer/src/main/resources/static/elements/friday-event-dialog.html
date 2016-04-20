@@ -515,16 +515,16 @@
           var eventDuration = moment.duration(endDate.diff(startDate));
           
           var durationMinutes = eventDuration.asMinutes();
-          var durationString = "";
+          var durationString = moment.duration(durationMinutes, "minutes").humanize();
           
-          if (durationMinutes > 119)
-          {
-              durationString = eventDuration.format("h [hours] m [minutes]");
-          }
-          else
-          {
-              durationString = eventDuration.format("h [hour] m [minutes]");
-          }
+//           if (durationMinutes > 119)
+//           {
+//               durationString = eventDuration.format("h [hours] m [minutes]");
+//           }
+//           else
+//           {
+//               durationString = eventDuration.format("h [hour] m [minutes]");
+//           }
           
           
           jQuery("#taskDayCountInput").spinner({

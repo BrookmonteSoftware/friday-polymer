@@ -5,7 +5,7 @@
 
 	<groupId>com.brookmonte.friday</groupId>
 	<artifactId>FridayPolymer</artifactId>
-	<version>0.30.8-SNAPSHOT</version>
+	<version>0.31.1-SNAPSHOT</version>
 
 	<name>FridayPolymer</name>
 	<description>MyFriday built with Google Polymer</description>

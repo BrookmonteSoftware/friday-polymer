@@ -49,4 +49,26 @@ public class NewsController
             return null;
         }
     }
+    
+    /**
+     * getNewsFeedXml
+     * @param urlString
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping("/getNewsFeedXml")
+    @ResponseBody
+    @PreAuthorize("isAuthenticated()")
+    public String getNewsFeedXml(@RequestParam("feedurl") String urlString) throws Exception
+    {
+        try
+        {
+            String feedXmlString = newsFeedManager.readFeedXml(urlString);            
+            return feedXmlString;
+        }
+        catch (Exception e)
+        {
+            return "";
+        }
+    }    
 }

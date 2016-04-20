@@ -61,8 +61,10 @@
   <link rel="import" href="/elements/friday-bing-traffic-incidents.html" th:href="@{/elements/friday-bing-traffic-incidents.html}"/>
   <link rel="import" href="/elements/friday-travel-times.html" th:href="@{/elements/friday-travel-times.html}"/>
   <link rel="import" href="/elements/friday-news-reader.html" th:href="@{/elements/friday-news-reader.html}"/>
+  <link rel="import" href="/elements/friday-news-ticker.html" th:href="@{/elements/friday-news-ticker.html}"/>
   <link rel="import" href="/elements/friday-contacts.html" th:href="@{/elements/friday-contacts.html}"/>
   <link rel="import" href="/elements/friday-event-dialog.html" th:href="@{/elements/friday-event-dialog.html}"/>
+  <link rel="import" href="/elements/friday-traffic-ticker.html" th:href="@{/elements/friday-traffic-ticker.html}"/>
   
 <dom-module id="friday-app">
 
@@ -96,13 +98,36 @@
             </paper-tabs>
             
             <iron-pages selected="{{selected}}">
-              <div class="layout vertical fit" style="position: absolute; top: 85px; overflow: hidden">
-                <div  style="overflow-y: auto">Today
-                  <div>More stuff</div>
-                  <div>More stuff</div>             
-                </div>
-              </div>
-              <div class="layout vertical fit" style="position: absolute; top: 85px; overflow: hidden">
+        <div class="layout vertical fit"
+          style="position: absolute; top: 85px; overflow: hidden">
+          <div style="overflow-y: auto">
+            <table>
+              <tr>
+                <td><friday-news-ticker id="headlines" title="Headlines" color="#ED7D31"
+                    proxybaseurl="/getNewsFeedXml?feedurl="
+                    tickerurl="https%3A%2F%2Fnews.google.com%2Fnews%3Fpz%3D1%26cf%3Dall%26ned%3Dus%26hl%3Den%26output%3Drss">
+                  </friday-news-ticker></td>
+              </tr>
+              <tr>
+                <td><friday-news-ticker id="business" title="Business" color="#4672C4" speed="40"
+                    proxybaseurl="/getNewsFeedXml?feedurl="
+                    tickerurl="https%3A%2F%2Fnews.google.com%2Fnews%3Fpz%3D1%26cf%3Dall%26ned%3Dus%26hl%3Den%26topic%3Db%26output%3Drss">
+                  </friday-news-ticker></td>
+              </tr>
+              <tr>
+                <td><friday-news-ticker id="sports" title="Sports" color="#A06601" speed="45"
+                    proxybaseurl="/getNewsFeedXml?feedurl="
+                    tickerurl="https%3A%2F%2Fnews.google.com%2F%3Ftopic%3Ds%26output%3Drss">
+                  </friday-news-ticker></td>
+              </tr>
+              <tr>
+                <td><friday-traffic-ticker id="traffic" title="Traffic" color="#0B2F6A" speed="55">
+                  </friday-traffic-ticker></td>
+              </tr>
+            </table>
+          </div>
+        </div>
+        <div class="layout vertical fit" style="position: absolute; top: 85px; overflow: hidden">
                 <div  style="overflow-y: auto">Tasks
                   <div>Some task stuff</div>
                 </div>
@@ -218,7 +243,6 @@
 //<![CDATA[
 	var trafficLayer = null;
 	var weatherLayer = null;
-	var googleMap = null;
 	
 	var userReady = false;
 	var mapReady = false;
@@ -322,7 +346,7 @@
         
         if (mapReady)
         {
-        	_this.fire('appReady',
+        	_this.fire('app-ready',
             {
         	    appReady : true
             });
@@ -335,7 +359,7 @@
         
         if (userReady)
         {
-        	_this.fire('appReady',
+        	_this.fire('app-ready',
             {
         	    appReady : true
             });
@@ -343,7 +367,7 @@
     });
     
     
-    this.addEventListener('appReady', function(e)
+    this.addEventListener('app-ready', function(e)
     {
         //alert(JSON.stringify(user));
         
@@ -425,6 +449,8 @@
            }           
         });
         
+        
+        
         // google map is ready, so set traffic data boundaries
         // which will update the traffic data display
         // also, set the user locations, so travel times will update
@@ -505,7 +531,11 @@
     {        
         if (tabname == "today")
         {
-            trafficLayer.setMap(null);            
+            trafficLayer.setMap(null);
+            document.getElementById("headlines").restart();
+            document.getElementById("business").restart();
+            document.getElementById("sports").restart();
+            document.getElementById("traffic").restart();
         }
         else if (tabname == "tasks")
         {

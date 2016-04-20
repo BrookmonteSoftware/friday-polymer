@@ -1,0 +1,205 @@
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="../styles/webticker.css">
+  
+  <!-- Non-Polymer JS libraries -->  
+  <script src="../js/bower_components/moment/moment.js" th:src="@{../js/bower_components/moment/moment.js}"></script>
+  <script src="../js/webticker/webticker.js" th:src="@{../js/webticker/webticker.js}"></script>
+
+
+  <!-- Friday application JS libraries -->
+  
+  <!-- POLYMER ELEMENTS -->
+  <link rel="import" href="../js/bower_components/polymer/polymer.html">
+  
+  <!-- IRON -->
+  <link rel="import" href="../js/bower_components/iron-resizable-behavior/iron-resizable-behavior.html" th:href="@{../js/bower_components/iron-resizable-behavior/iron-resizable-behavior.html}">
+  
+  <!-- PAPER -->
+  
+  <!-- GOOGLE -->
+
+  <!-- FRIDAY ELEMENTS -->
+
+<dom-module id="friday-news-ticker">
+
+<style>
+</style>
+<template>
+
+<div id="newsTickerContainer"
+  style="position: relative; top: 0px; left: 5px; overflow: hidden; padding: 0px; margin: 0px;">
+  <table id="newsTickerTable" style="border-collapse: collapse; padding: 0px; margin: 0px; overflow: hidden">
+  <tr>
+    <td style="padding: 0px !important; margin: 0px !important; width:90px !important">
+      <div id="titleDiv" style="display: inline-block; text-align: left; font: bolder normal 14px Calibri, sans-serif; color: white; padding-left: 5px; padding-top: 3px; margin: 0px; width: 70px !important"></div>
+      <div id="arrowDiv" style="display: inline-block; margin: -6px; padding-top: 0px; width: 0px; height: 0px; border-top: 10px solid transparent; border-bottom: 10px solid transparent; "></div>      
+    </td>
+    <td id="tickerContainerCell" style="overflow: hidden">
+    <ul id="newsTicker"
+      style="font: bolder normal 14px Calibri, sans-serif; padding: 0px; margin: 0px; overflow: hidden">
+    </ul>
+    </td>
+  </tr>
+  </table>
+</div>
+  
+</template>
+
+<script>
+
+  
+  Polymer(
+  {      
+      is : 'friday-news-ticker',
+      behaviors : [ Polymer.IronResizableBehavior ],
+      ready: function()
+      {
+          var decodedUrl = decodeURIComponent(this.tickerurl);    
+         
+          this.tickerrssurl = getBaseLocation() + this.proxybaseurl + encodeURIComponent(decodedUrl);
+          
+          this.async(this.buildTicker, 2000);
+          this.async(this.notifyResize, 2050);
+      },
+      listeners :
+      {
+          'iron-resize'	 : 'onIronResize'
+      },
+      properties :
+      {
+          proxybaseurl : 
+          {
+              value : "",
+              type : String,
+              notify : true,
+              reflectToAttribute : true
+          },
+          tickerrssurl :
+          {
+              value : "",
+              type : String,
+              notify : true,
+              reflectToAttribute : true
+          },
+          tickerurl :
+          {
+              value : "",
+              type : String,
+              notify : true,
+              reflectToAttribute : true
+          },
+          refreshinterval :
+          {
+              value : 10, // default refresh interval is 10 minutes
+              type : String,
+              notify : true,
+              reflectToAttribute : true
+          },
+          color :
+          {
+              value : "#5B9BD5",
+              type : String,
+              notify : true,
+              reflectToAttribute : true
+          },
+          height :
+          {
+              value : "25px",
+              type : String,
+              notify : true,
+              reflectToAttribute : true
+          },
+          title :
+          {
+              value : "Title",
+              type : String,
+              notify : true,
+              reflectToAttribute : true
+          },
+          speed :
+          {
+              value : "50",
+              type : String,
+              notify : true,
+              reflectToAttribute : true
+          }          
+      },
+      onIronResize : function()
+      {
+          // info card is outside thie element's shadow DOM
+          // so must call document.querySelector
+          var infoCard = document.querySelector("#infoCard");          
+          var cardHeight = jQuery(infoCard).height();
+          var cardWidth = jQuery(infoCard).width();       
+          
+          // for elements within this element's shadow DOM,
+          // call Polym.dom(this.root) to get the element
+          var newsTickerContainer = Polymer.dom(this.root).querySelector("#newsTickerContainer");
+          
+          // once the element is retrieved, it can be used in jQuery
+          jQuery(newsTickerContainer).width(cardWidth - 20);
+          
+          var newsTickerTable = Polymer.dom(this.root).querySelector("#newsTickerTable");
+          jQuery(newsTickerTable).width(cardWidth - 40);
+          
+          var tickerContainerCell = Polymer.dom(this.root).querySelector("#tickerContainerCell");
+          jQuery(tickerContainerCell).each(function () {
+              this.style.setProperty( 'width', cardWidth - 135 + "px", 'important' );
+          });
+
+          var tickerContainer = Polymer.dom(this.root).querySelector(".tickercontainer");
+          jQuery(tickerContainer).each(function () {
+              this.style.setProperty( 'width', cardWidth - 135 + "px", 'important' );
+          }); 
+
+      },      
+      buildTicker : function()
+      {
+          var titleDiv = Polymer.dom(this.root).querySelector("#titleDiv");
+          jQuery(titleDiv).html(this.title);
+          jQuery(titleDiv).css("backgroundColor", this.color);
+          jQuery(titleDiv).css("height", this.height);
+          
+          var arrowDiv = Polymer.dom(this.root).querySelector("#arrowDiv");
+          jQuery(arrowDiv).css("border-left", "10px solid " + this.color);
+          
+          var newsTickerContainer = Polymer.dom(this.root).querySelector("#newsTickerContainer");
+          
+          jQuery(newsTickerContainer).css("height", this.height);
+          jQuery(newsTickerContainer).css("border", "2px solid " + this.color);
+          jQuery(newsTickerContainer).css("padding", "0px");
+          jQuery(newsTickerContainer).css("margin", "0px");
+          
+          var newsTicker = Polymer.dom(this.root).querySelector("#newsTicker");
+          jQuery(newsTicker).webTicker({
+              moving: true,
+              rssurl: this.tickerrssurl,
+              rssfrequency: this.refreshinterval,
+              speed: this.speed
+          });
+      },
+      restart : function()
+      {    
+          var newsTickerContainer = Polymer.dom(this.root).querySelector("#tickerContainerCell");
+          jQuery(newsTickerContainer).empty();
+          
+          jQuery(newsTickerContainer).append("<ul id='newsTicker'>");
+          var newsTicker = Polymer.dom(this.root).querySelector("#newsTicker");
+          
+          jQuery(newsTicker).css("font", "bolder normal 14px Calibri, sans-serif");
+          jQuery(newsTicker).css("padding", "0px");
+          jQuery(newsTicker).css("margin", "0px");
+          jQuery(newsTicker).css("overflow", "hidden");
+          
+          jQuery(newsTicker).webTicker({
+              moving: true,
+              rssurl: this.tickerrssurl,
+              rssfrequency: this.refreshinterval,
+              speed: this.speed
+          });          
+      }      
+  });
+
+</script>
+        
+</dom-module>
